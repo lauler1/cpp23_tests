@@ -26,8 +26,7 @@ namespace DBG {
 			return typeid(t).name();
 		}
 	}
-	
-	
+
 	static inline void print_stacktrace(void){
 		
 		void *array[65];

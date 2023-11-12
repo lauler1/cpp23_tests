@@ -1,0 +1,5 @@
+#define GIT_VERSION "e6e6a25"
+#define GIT_COUNT "11"
+#define GIT_AUTHOR "lauler1"
+#define GIT_TAG ""
+#define GIT_BRANCH "master"

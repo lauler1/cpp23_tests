@@ -21,6 +21,10 @@ The option need that the application was compiled with `-g`.
 gprofng display text -source main test.1.er
 ```
 
+> `gprofng` worked out of the box in my WSL Linux distro (binutils version 2.41).
+
+> In the version isntall when I created this test, no HTML or GUI were possible.
+
 See also:
 https://www.youtube.com/watch?v=LD0RPjjShPw
 https://sourceware.org/binutils/docs/gprofng.pdf

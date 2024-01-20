@@ -1,35 +1,8 @@
 #include "server.h"
+
 #include <iostream>
 #include <cerrno>
 
-extern int open_browser(std::string url);
-
-Server::Server(ServInit params){
-	conf = params;
-    std::cout << "Server::Server" << std::endl;
-    std::cout << " conf.port: " << conf.port << "\n";
-    std::cout << " conf.dir: "  << conf.dir << "\n";
-    std::cout << "end" << std::endl;
-}
-
-int Server::start(std::string_view start_page){
-	
-    std::cout << "Server::start" << std::endl;
-	std::cout << " start_page: " << start_page << "\n";
-    std::cout << "end" << std::endl;
-	
-	open_browser(conf.dir.append("/").append(start_page));
-	
-	return 0;//ENOTCONN;
-}
-
-int Server::run(){
-    std::cout << "Server::run" << std::endl;
-
-
-    std::cout << "end" << std::endl;	
-	return 1;
-}
 
 /**
     std::cout << "t << std::endl;

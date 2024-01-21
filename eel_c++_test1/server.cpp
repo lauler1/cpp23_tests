@@ -33,7 +33,9 @@ std::string get_Date(){
 
 std::uintmax_t get_file_size(const std::string &path){
 	std::filesystem::path p{path};
-	return std::filesystem::file_size(p);
+	std::uintmax_t ans = std::filesystem::file_size(p);
+	std::cout << "     path = " << path <<  "; ans = " << ans << "\n\n";
+	return ans;
 }
 
 std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_ptr){
@@ -111,7 +113,7 @@ std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_pt
 	
 	if(response.body_type == BodyType::TXT_FILE){
 		response.headers["Content-Type"] = "text/html; charset=utf-8";
-		response.headers["Content-Length"] = get_file_size(response.body_message);
+		response.headers["Content-Length"] = std::to_string(get_file_size(response.body_message));
 	}
 	
 	std::string response_string = response.protocol_version+" "+std::to_string((int)response.status_code)+" "+response.reason+"\r\n";

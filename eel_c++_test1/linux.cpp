@@ -36,21 +36,21 @@ class HttpServer::PlatSocketImpl{
 		HttpServer *http_server_;
 		bool started_{false};
 		bool server_;//[[maybe_unused]] client not implemented yet
-		int sock_fd_{0};
-		int epollfd_{0};
 		std::string host_;
 		std::uint16_t port_;
 		static constexpr int BACKLOG_SIZE = 10;
 		static constexpr int MAX_EVENTS = 50;
-		struct epoll_event ev_{};
-		struct epoll_event events_[MAX_EVENTS];
+		
+		//Platform specific:
+		int epoll_fd_{0};
+		int sock_fd_{0};
 		
 		ServError serv_listen();
 
 };
 
-HttpServer::HttpServer(ServInit params, Request_Callback_Interface &proc_request): conf_{params},
-				proc_request_{proc_request},
+HttpServer::HttpServer(ServInit params, Request_Callback_Interface &on_request): conf_{params},
+				proc_request_{on_request},
 				pImpl{std::make_unique<PlatSocketImpl>(this, true, "0.0.0.0", params.port)} {
 
     std::cout << "HttpServer::HttpServer\n";
@@ -134,14 +134,15 @@ ServError HttpServer::PlatSocketImpl::start_socket(){
 }
 
 ServError HttpServer::PlatSocketImpl::serv_listen(){
+	struct epoll_event ev_{};
 
 	if (listen(sock_fd_, BACKLOG_SIZE) < 0) {
 		return ServError::SOCK_LISTEN;
 	}
 	std::cout << "HttpServer::PlatSocketImpl::serv_listen listening...\n";
 	
-	epollfd_ = epoll_create1(0);
-	if (epollfd_ == -1) {
+	epoll_fd_ = epoll_create1(0);
+	if (epoll_fd_ == -1) {
 		return ServError::EPOLL_CREATE;
 	}
 
@@ -150,7 +151,7 @@ ServError HttpServer::PlatSocketImpl::serv_listen(){
 	ev_.data.ptr = event_data_ptr;
 	event_data_ptr->fd = sock_fd_;
 	event_data_ptr->id = epoll_id++;
-	if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, sock_fd_, &ev_) == -1) {
+	if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, sock_fd_, &ev_) == -1) {
 		return ServError::EPOLL_CTL;
 	}
 	
@@ -160,6 +161,8 @@ ServError HttpServer::PlatSocketImpl::serv_listen(){
 
 ServError HttpServer::PlatSocketImpl::run_socket(){
 	EventData* event_data_ptr;
+	struct epoll_event ev_{};
+	struct epoll_event events_[MAX_EVENTS];
 	
 	if(!started_){
 		return ServError::NOT_STARTED;
@@ -170,13 +173,16 @@ ServError HttpServer::PlatSocketImpl::run_socket(){
 	socklen_t client_len = sizeof(client_address);
 	
 	std::cout << "HttpServer::PlatSocketImpl::run_socket waiting\n";
-	int nfds = epoll_wait(epollfd_, events_, MAX_EVENTS, -1);
+	int nfds = epoll_wait(epoll_fd_, events_, MAX_EVENTS, -1);
 	if (nfds == -1) {
 		return ServError::EPOLL_WAIT;
 	}
 
 	for (int n = 0; n < nfds; ++n) {
 		event_data_ptr = reinterpret_cast<EventData*>(events_[n].data.ptr);
+		
+		event_data_ptr->print("run_socket For Loop");
+		
 		int fd = event_data_ptr->fd;
 		if (fd == sock_fd_) {
 			std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  new connection: "<< event_data_ptr->id <<", event: "<< events_[n].events << "\n";
@@ -192,57 +198,74 @@ ServError HttpServer::PlatSocketImpl::run_socket(){
 			event_data_ptr->id = epoll_id++;
 			event_data_ptr->fd = accept_fd;
 			
-			if (epoll_ctl(epollfd_, EPOLL_CTL_ADD, accept_fd, &ev_) == -1) {
+			if (epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, accept_fd, &ev_) == -1) {
 				return ServError::EPOLL_CTL;
 			}
 			std::cout << "						new id: "<< event_data_ptr->id << "\n";
 
 		} else {
 			std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd do_use_fd: "<< event_data_ptr->id << ", event: "<< events_[n].events << "\n";
-			if ((events_[n].events & EPOLLHUP) != 0)
-			{
-				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"] fd EPOLLHUP closed\n";
-				delete(reinterpret_cast<EventData*>(events_[n].data.ptr));
-				if (epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, nullptr) < 0) {
-					perror("epoll_ctl");
-				}
-				close(fd);
-			}
 			if ((events_[n].events & EPOLLIN) != 0)  {
 				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd EPOLLIN  sizeof(event_data_ptr->buffer): "<< sizeof(event_data_ptr->buffer) << "\n";
-				event_data_ptr->length = recv(fd, event_data_ptr->buffer, event_data_ptr->capacity_, 0);
+				event_data_ptr->print("EPOLLIN");
+				event_data_ptr->length = recv(fd, event_data_ptr->buffer, event_data_ptr->get_capacity(), 0);
 				event_data_ptr->buffer[event_data_ptr->length] = 0;
 
 				if(event_data_ptr->length == 0) {
 					std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd event_data_ptr->length == 0\n";
+					//continue;
 
 				}
 				else if(event_data_ptr->length > 0) {
+					event_data_ptr->print("EPOLLIN if event_data_ptr->length > 0");
 					std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd event_data_ptr->length: "<< event_data_ptr->length << " (do something)\n";
 					event_data_ptr->fd = fd;
 					
 					//Do something in the main class
-					auto response_string = http_server_->proc_raw_request(event_data_ptr);
+					auto [response_string, buff_size, bin_buff] = http_server_->proc_raw_request(event_data_ptr);
 					
 					std::cout << "---------------------------------------------------\n";
 					std::cout << " Response\n";
 					std::cout << "---------------------------------------------------\n";
-					std::cout << (*response_string).c_str() << "\n\n";
+					std::cout << response_string.c_str() << "\n\n";
 
-					if((*response_string).length() > event_data_ptr->capacity_){
-						//TODO
-						//delete(reinterpret_cast<EventData*>(events_[n].data.ptr)); //Delete old data.ptr
-						//EventData* response_data_ptr = new EventData;              //Create a new one bigger
-						//ev_.data.ptr = response_data_ptr;                          //Use the new one (bigger)
+					auto expected_capacity = response_string.length() + buff_size;
+					
+					// Need more space?
+					if(event_data_ptr->get_capacity() < expected_capacity){
+						auto old_id = event_data_ptr->id;
+						auto old_keep_alive = event_data_ptr->keep_alive;
+						delete(event_data_ptr); //Delete old data.ptr
+						
+						event_data_ptr = new EventData(expected_capacity); //Create a new one bigger
+						event_data_ptr->fd = fd;
+						event_data_ptr->id = old_id;
+						event_data_ptr->keep_alive = old_keep_alive;
 					}
 					
-					event_data_ptr->length = (*response_string).length();
+					// Binary data?
+					if(bin_buff != nullptr and buff_size > 0){
+
+						std::memcpy(event_data_ptr->buffer, response_string.c_str(), response_string.length());
+						std::memcpy(&event_data_ptr->buffer[response_string.length()], bin_buff, buff_size);
+
+						event_data_ptr->length = expected_capacity;
+						/*std::cout << "  event_data_ptr->length: " << event_data_ptr->length << "\n";
+						std::cout << "  buff_size: " << buff_size<< "\n";
+						std::cout << "  sizeof(event_data_ptr->buffer): " << sizeof(event_data_ptr->buffer) << "\n";
+						std::cout << "  expected_capacity: " << expected_capacity << "\n";
+						std::cout << "  event_data_ptr->get_capacity(): " << event_data_ptr->get_capacity() << "\n";*/
+
+					}else{
+						std::strcpy(event_data_ptr->buffer, response_string.c_str());
+						event_data_ptr->length = response_string.length();
+					}
+
 					event_data_ptr->cursor = 0;
-					std::strcpy(event_data_ptr->buffer, (*response_string).c_str());
 					ev_.data.ptr = event_data_ptr;
 
 					ev_.events = EPOLLOUT | EPOLLET;
-					if (epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &ev_) < 0) {
+					if (epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &ev_) < 0) {
 						perror("epoll_ctl");
 					}
 			
@@ -254,16 +277,19 @@ ServError HttpServer::PlatSocketImpl::run_socket(){
 				
 				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"] fd closing\n";
 				delete(reinterpret_cast<EventData*>(events_[n].data.ptr));
-				if (epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, nullptr) < 0) {
+				if (epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr) < 0) {
 					perror("epoll_ctl");
 				}
 				close(fd);
+				continue; //After deleting a event_data_ptr, no further event handling is possible.
 
 			}
 			if ((events_[n].events & EPOLLOUT) != 0)
 			{
-				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd EPOLLOUT\n";
+				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd EPOLLOUT "<<event_data_ptr->length<<"\n";
+				event_data_ptr->print("EPOLLOUT");
 				size_t byte_count = send(fd, event_data_ptr->buffer + event_data_ptr->cursor, event_data_ptr->length, 0);
+				save_buffer("log3.txt", event_data_ptr->buffer + event_data_ptr->cursor, event_data_ptr->length);
 				if (byte_count >= 0) {
 					if (byte_count < event_data_ptr->length) {  // there are still bytes to write
 						std::cout << "     More data to send\n";
@@ -271,37 +297,53 @@ ServError HttpServer::PlatSocketImpl::run_socket(){
 						event_data_ptr->length -= byte_count;
 						ev_.data.ptr = event_data_ptr;
 						ev_.events = EPOLLOUT;
-						epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &ev_);
-					} else {  // we have written the complete message -> close connection
-						std::cout << "     Written the complete message -> close connection\n";
-						epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, nullptr);
-						close(fd);
-						delete event_data_ptr;
+						epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &ev_);
+					} else {  // we have written the complete message -> close connection?
+						std::cout << "     Written the complete message -> close connection? sent="<<byte_count<<"\n";
+						
+						if(event_data_ptr->keep_alive){
+							std::cout << "         Keep alive\n";
+							
+							event_data_ptr->reset();
+							ev_.data.ptr = event_data_ptr;
+							ev_.events = EPOLLIN | EPOLLET;
+							epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &ev_);
+
+
+						}else{
+							std::cout << "         Close\n";
+							epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
+							close(fd);
+							delete event_data_ptr;
+							continue; //After deleting a event_data_ptr, no further event handling is possible.
+						}
 					
-					/*
-						request = new EventData();
-						request->fd = fd;
-						ev_.data.ptr = event_data_ptr;
-						ev_.events = EPOLLIN | EPOLLET;
-						epoll_ctl(epollfd_, EPOLL_CTL_MOD, fd, &ev_);
-						delete event_data_ptr;
-						*/
+
 					}	
 				}else{
 					if (errno == EAGAIN || errno == EWOULDBLOCK) {  // retry
 						std::cout << "     Retry\n";
 						ev_.data.ptr = event_data_ptr;
 						ev_.events = EPOLLOUT;
-						epoll_ctl(epollfd_, EPOLL_CTL_ADD, fd, &ev_);
+						epoll_ctl(epoll_fd_, EPOLL_CTL_ADD, fd, &ev_);
 					} else {  // other error
 						std::cout << "     other error\n";
-						epoll_ctl(epollfd_, EPOLL_CTL_DEL, fd, nullptr);
+						epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr);
 						close(fd);
 						delete event_data_ptr;
+						continue; //After deleting a event_data_ptr, no further event handling is possible.
 					}
 				}
 				
-
+			}
+			if ((events_[n].events & EPOLLHUP) != 0)
+			{
+				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"] fd EPOLLHUP closed\n";
+				delete(reinterpret_cast<EventData*>(events_[n].data.ptr));
+				if (epoll_ctl(epoll_fd_, EPOLL_CTL_DEL, fd, nullptr) < 0) {
+					perror("epoll_ctl");
+				}
+				close(fd);
 			}
 		}
 	}

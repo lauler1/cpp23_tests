@@ -22,33 +22,56 @@ void test1(HttpServer &server) {
 }
 
 struct Eel: Request_Callback_Interface{
-	std::string name = "Nome...";
+	std::string name = "Test Server";
 
-	void proc_request(HttpRequest* request, HttpResponse* response) override;
+	bool on_request(HttpRequest* request, HttpResponse* response) override;
 };
 
-void Eel::proc_request(HttpRequest* request, [[maybe_unused]] HttpResponse* response) {
+bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* response) {
 	std::cout << "###################################################\n";
-	std::cout << " proc_request "<<name<<"\n";
+	std::cout << " on_request ("<<name<<")\n";
 	std::cout << "###################################################\n";
 	for (const auto& [key, value] : request->headers){
 		std::cout << '[' << key << "] = " << value << ";\n";	
 	}
-	
-	
-	response->headers["Connection"] = "close";
-	response->headers["Content-Type"] = "text/html; charset=utf-8";
-	
-	/**
-	if body_type = BodyType::NONE, body_message is ignored
-	if body_type = BodyType::TEXT, body_message is text sent  
-	if body_type = BodyType::TXT_FILE, body_message is the file name to be load (For text file)
-	if body_type = BodyType::BIN_FILE, body_message is the file name to be load (For binary file)
-	*/
-	response->body_type = BodyType::TXT_FILE;
-	response->body_message = request->resource;
 
 	
+	bool is_websocket = false;
+	if((request->headers.find("Upgrade") != request->headers.end()) and (request->headers["Upgrade"] == "websocket")){
+		is_websocket = true;
+	}
+
+	if(request->method == "GET"){
+		std::cout << "  " << request->method << " resource " << request->resource << "\n";
+		if(request->resource.find(".") != std::string::npos){
+			
+			std::cout << "    of type " << request->resource.substr(request->resource.find(".")) << "\n";
+			MimeType mime{};
+			std::string mime_type = mime.get_mime_from_resource(request->resource);
+			std::cout << " MIME type = " << mime_type<< "\n";
+			if(mime_type.find("text/") != std::string::npos){
+				response->body_type = BodyType::TXT_FILE;
+			}else{
+				response->body_type = BodyType::BIN_FILE;
+			}
+			response->headers["Content-Type"] = mime_type;
+			response->body_message = request->resource;
+
+		}else if (is_websocket){
+			std::cout << "  Websocket " << request->resource << "\n";
+			response->status_code = ResponseCode::SwitchingProtocols;
+			response->reason = "Switching Protocols";
+
+			response->headers["Upgrade"] = "websocket";
+			response->headers["Connection"] = "Upgrade";
+			//response->headers["Sec-WebSocket-Accept"] = get_sec_websocket_accept("q4xkcO32u266gldTuKaSOw==");
+			response->headers["Sec-WebSocket-Accept"] = get_sec_websocket_accept(request->headers["Sec-WebSocket-Key"]);
+
+			response->body_message = "";
+		}
+	}
+
+	return true; //response processed successfully
 };
 
 int main() {

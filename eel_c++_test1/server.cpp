@@ -1,4 +1,5 @@
 #include "server.h"
+#include "sha1.h"
 
 #include <iostream>
 #include <fstream>
@@ -6,6 +7,78 @@
 #include <sstream>
 #include <regex>
 #include <filesystem>
+
+unsigned char buff[] = {
+'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z',
+'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '+', '/'};
+
+
+std::string  my_base64(std::string hex){
+	
+	//std::cout << "  my_base64: hex = "<<hex<<"\n";
+	
+	std::string result = "";
+	
+	bool pading = false;
+	
+    for (size_t i = 0; i < hex.length(); i += 3) {
+        std::string byteString = hex.substr(i, 3);
+		if(byteString.length() == 1){
+			byteString += "00";
+			pading = true;
+		}else if(byteString.length() == 2){ // unlikely, missing a 0?
+			byteString += "0";
+		}
+		
+		
+		unsigned long val = std::stoul(byteString, nullptr, 16);
+		
+		//std::cout << "  my_base64: 0x"<<byteString<<" = "<<val<<std::endl;
+		
+		unsigned int low = val & 0x3F;
+		unsigned int high = (val >> 6) & 0x3F;
+		/*if(low > 63 or high > 63){
+			//std::cout << "  my_base64: values > 63\n";
+		}*/
+		result += buff[high];
+		if(pading){
+			result += '=';
+		}else{
+			result += buff[low];
+		}
+		//std::cout << "  my_base64: low = "<<low<<", high = "<<high<< ", high = "<< buff[high] << ", low="<< buff[low] <<std::endl;
+    }//					  40	101000	o
+	//std::cout << "  my_base64: result = "<<result<<std::endl;
+	return result;
+}
+
+std::string get_sec_websocket_accept(std::string key){
+	
+	//const char[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+	key += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+	
+	SHA1 checksum;
+    checksum.update(key);
+	std::cout << "  key: "<<key<<"\n";
+	std::string hex = checksum.final();
+	std::cout << "  SHA1: "<<hex<<"\n";
+
+
+	std::cout << "  Base64: "<<my_base64(hex)<<"\n";	
+	return my_base64(hex);
+}
+
+void save_buffer(std::string filename, const char* buffer, size_t len){
+	
+	if(buffer == nullptr or len <= 0 or len > 100'000'000 or filename == ""){
+		return;
+	}
+	std::ofstream outfile;
+	outfile.open(filename, std::ios::binary | std::ios::out);
+	outfile.write(buffer, len); // sizeof can take a type
+	outfile.close();
+}
 
 std::vector<std::string> split (const std::string &s, char delim) {
     std::vector<std::string> result;
@@ -16,6 +89,8 @@ std::vector<std::string> split (const std::string &s, char delim) {
     }
     return result;
 }
+
+
 
 std::string get_Date(){
 	// Time stamp the response with the Date header
@@ -38,15 +113,22 @@ std::uintmax_t get_file_size(const std::string &path){
 	return ans;
 }
 
-std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_ptr){
-	HttpRequest request;
-	HttpResponse response;
+std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* event_data_ptr){
+	HttpRequest request{};
+	HttpResponse response{};
+	size_t buff_size = 0;
+	char* bin_buff = nullptr;
+	event_data_ptr->print("proc_raw_request");
+
+	save_buffer("log.txt", event_data_ptr->buffer, event_data_ptr->length);
 	
 	std::cout << "\n\ndo_something:\n" << event_data_ptr->buffer << "\n\n";
+	std::cout << "\n\nkeep_alive: " << event_data_ptr->keep_alive << "\n\n";
     std::istringstream f{std::string(event_data_ptr->buffer)};
     std::string line;
 	const std::regex main_header_regex(R"((GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s(.+)\s*(HTTP\/\d+\.\d+)*(\r|\n)*)");
 	const std::regex attr_header_regex(R"((\S+):\s(.+)(\r|\n)*)");
+	
 
 	int i = 0;
     while (std::getline(f, line)) {
@@ -73,10 +155,12 @@ std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_pt
 			if(request.resource == "/"){
 				request.resource += conf_.default_page;
 			}
-			request.resource = conf_.dir+request.resource;
-			
+			if(request.resource.find(".") != std::string::npos){ // if file, make complete path
+				request.resource = conf_.dir+request.resource;
+			}else{
+				request.resource = request.resource.substr(1); // else, remove path begin
+			}
 			std::cout << "        resource="<<request.resource<<"\n";
-
 		}
 		else if(std::regex_match(line, attr_header_regex)){ // Headers
 			//auto s = split (line, ':');
@@ -85,16 +169,24 @@ std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_pt
 			auto value = line.substr (pos + 2); 			
 			std::cout << "        key="<<key<<", value="<<value<<"\n";
 			request.headers[key] = value;
+			
+			if(key=="Connection" and value == "keep-alive"){
+				event_data_ptr->keep_alive = true;
+			}
+			if(key=="Upgrade" and value == "websocket"){
+				std::cout << "        Upgrade: websocket --> keep_alive \n";
+				event_data_ptr->keep_alive = true;
+			}
 		}
 		else{ // TODO (something else, e.g. user raw data)
 			//std::cout << "\n proc_raw_request:\n" << event_data_ptr->buffer << "\n\n";
-			std::cout << "    Http header error on line " << (i++) << ": " << line << std::endl;
+			//std::cout << "    Http header error on line " << (i++) << ": " << line << std::endl;
 		}
     }	
 	
-	response.headers["Date"] = get_Date();
-	
-	proc_request_.proc_request(&request, &response);
+
+	proc_request_.on_request(&request, &response);
+
 	
 	if((response.body_type == BodyType::TXT_FILE) or (response.body_type == BodyType::BIN_FILE)){
 		if(!std::filesystem::exists(response.body_message)){
@@ -103,17 +195,16 @@ std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_pt
 			response.reason = "Not Found";
 			response.body_type = BodyType::TEXT;
 			response.body_message ="Not Found";
+		}else{
+			response.headers["Content-Length"] = std::to_string(get_file_size(response.body_message));
 		}
+		response.headers["Date"] = get_Date();
 	}
 	
 	if(response.body_type == BodyType::TEXT){
 		response.headers["Content-Type"] = "text/plain; charset=utf-8";
 		response.headers["Content-Length"] = std::to_string(response.body_message.length());
-	}
-	
-	if(response.body_type == BodyType::TXT_FILE){
-		response.headers["Content-Type"] = "text/html; charset=utf-8";
-		response.headers["Content-Length"] = std::to_string(get_file_size(response.body_message));
+		response.headers["Date"] = get_Date();
 	}
 	
 	std::string response_string = response.protocol_version+" "+std::to_string((int)response.status_code)+" "+response.reason+"\r\n";
@@ -124,12 +215,23 @@ std::optional<std::string> HttpServer::proc_raw_request(EventData* event_data_pt
 	if(response.body_type == BodyType::TEXT){
 		response_string += response.body_message;
 	}
-	if(response.body_type == BodyType::TXT_FILE){
+	else if(response.body_type == BodyType::TXT_FILE){
 		std::ifstream inFile;
 		inFile.open(response.body_message); //open the input file
 		std::stringstream strStream;
 		strStream << inFile.rdbuf(); //read the file
 		response_string += strStream.str(); //str holds the content of the file
+		inFile.close();
 	}
-	return response_string;
+	else if(response.body_type == BodyType::BIN_FILE){
+
+		buff_size = get_file_size(response.body_message);
+		bin_buff = new char[buff_size];
+		std::ifstream inFile(response.body_message, std::ios::in | std::ios::binary );
+		inFile.read(bin_buff, buff_size);
+		inFile.close();
+	}
+	save_buffer("log1.txt", response_string.c_str(), response_string.length());
+	std::cout << "\n\nkeep_alive: " << event_data_ptr->keep_alive << "\n\n";
+	return std::make_tuple(response_string, buff_size, bin_buff);
 }

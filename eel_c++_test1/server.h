@@ -7,6 +7,10 @@
 #include <map>
 #include <functional>
 #include <optional>
+#include <tuple>
+#include <iostream>
+#include "mime.h"
+
 //#include "platform.h" //implementation dependent, e.g.: linux.cpp
 
 #include <memory>
@@ -30,6 +34,21 @@ enum class ServError {
 	
 };
 
+/**
+	Http Request Type
+*/
+enum class HttpRequestType {
+	UNKNOWN = 0,   // Unknown request type
+	GET,
+	HEAD,
+	POST,
+	PUT,
+	DELETE,
+	CONNECT,
+	OPTIONS,
+	TRACE,
+	PATCH
+};
 
 /**
 	Errors, including the platform dependent ones ones
@@ -87,17 +106,33 @@ struct ServInit {
 	For internal use only
 */
 struct EventData {
-	//EventData() : fd{0}, length{0}, cursor{0}, buffer{} {}
-	EventData() : fd{0}, length{0}, cursor{0}, capacity_{10240} {buffer = new char[capacity_+1];}
+	EventData() : fd{0}, length{0}, cursor{0}, capacity_{100240} {buffer = new char[capacity_+1];}
 	EventData(size_t capacity) : fd{0}, length{0}, cursor{0}, capacity_{capacity} {buffer = new char[capacity_+1];}
 	~EventData() {delete[] buffer;}
-	int fd;
 	int id;
+	int fd;
+	bool keep_alive{false};
 	size_t length; // number of bytes
 	size_t cursor; // for parcial reception/transmission
-	//char buffer[10240];
 	char *buffer;
-	size_t capacity_; // Max allowed number of bytes
+	
+	void reset(){
+		length = 0;
+		cursor = 0;
+	}
+	size_t get_capacity(){return capacity_;}
+	void print(std::string label = ""){
+		std::cout << ":   EventData: <"<<label<<">\n";
+		std::cout << ":           id = " << id<< "\n";
+		std::cout << ":           fd = " << fd<< "\n";
+		std::cout << ":   keep_alive = " << keep_alive<< "\n";
+		std::cout << ":       length = " << length<< "\n";
+		std::cout << ":       cursor = " << cursor<< "\n";
+
+	}
+
+	private:
+		size_t capacity_; // Max allowed number of bytes
 };
 
 /**
@@ -108,38 +143,60 @@ struct HttpRequest{
 	https://www.practical-go-lessons.com/chap-26-basic-http-server
 	https://www.aisangam.com/blog/http-request-message-format-well-explained/
 	*/
+	HttpRequest() = default;
 	EventData* event_data_ptr{nullptr};	
+	//HttpRequestType method_type {HttpRequestType::UNKNOWN};
 	std::string method{""};
 	std::string uri{"/"};
 	std::string resource{""};
 	std::string protocol_version{"HTTP/1.1"};
 	std::map<std::string, std::string> headers{};
 	char message_body[10240];
+	/*
+	std::optional<std::string> get_header(std::string key) const {
+		
+		if(headers.find(key) != headers.end()){
+			return headers[key];
+		}
+		return {};
+	}*/
+
 };
 
 /**
 	Http response data
 */
 struct HttpResponse{
+	HttpResponse() = default;
 	//EventData* event_data_ptr{nullptr};	
 	std::string protocol_version{"HTTP/1.1"};
 	ResponseCode status_code{ResponseCode::OK};
 	std::string reason{"OK"};
-	std::map<std::string, std::string> headers{{"Connection", "close"}, {"Content-Length", "0"}};
+	std::map<std::string, std::string> headers{};//{"Connection", "close"}};
 	
 	/**
 	if body_type = BodyType::NONE, body_message is ignored
-	if body_type = BodyType::TEXT, body_message is text sent  
+	if body_type = BodyType::TEXT, body_message is text  
 	if body_type = BodyType::TXT_FILE, body_message is the file name to be load (For text file)
 	if body_type = BodyType::BIN_FILE, body_message is the file name to be load (For binary file)
 	*/
-	BodyType body_type{BodyType::TEXT};
-	std::string body_message{"Olá como você está"};
+	BodyType body_type{BodyType::NONE};
+	/**
+	Contyains the body text to be transmitted (if BodyType::TEXT) or the file path name (if BodyType::TXT_FILE or BodyType::BIN_FILE)
+	*/
+	std::string body_message{""};
 };
 
 struct Request_Callback_Interface{
-	// creating a pure virtual function
-	virtual void proc_request(HttpRequest* request, HttpResponse* response) = 0; // pure virtual
+	/**
+		Callback to process a request from the server and to answer with response.
+		The caller chall ensure the correct allocation of the parameters.
+		Pure virtual function.
+		
+		return: true if message was correctly consumed and response is ready.
+	*/
+	virtual bool on_request(HttpRequest* request, HttpResponse* response) = 0; // pure virtual
+	//virtual bool on_error(const HttpRequest* request, HttpResponse* response) = 0;   // pure virtual
 };
 
 /**
@@ -153,12 +210,12 @@ class HttpServer{
 	
 	public:
 		HttpServer() = delete;
-		HttpServer(ServInit params, Request_Callback_Interface &proc_request);//std::function<void(HttpRequest*, HttpResponse*)> proc_request);
+		HttpServer(ServInit params, Request_Callback_Interface &on_request);//std::function<void(HttpRequest*, HttpResponse*)> on_request);
 		~HttpServer();
 		int start(std::string_view start_page);
 		int run();
 		
-		std::optional<std::string> proc_raw_request(EventData* event_data_ptr);
+		std::tuple<std::string, size_t, char*> proc_raw_request(EventData* event_data_ptr);
 		
 	private:	
 		class PlatSocketImpl;// Forward declaration of the platform dependent implementation class
@@ -171,4 +228,7 @@ class HttpServer{
 */
 extern int open_browser(std::string url);
 
+extern std::string get_sec_websocket_accept(std::string key);
+
+extern void save_buffer(std::string filename, const char* buffer, size_t len);
 #endif // _SERVER_H_

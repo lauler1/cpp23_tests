@@ -1,8 +1,13 @@
 #ifndef _SERVER_H_
 #define _SERVER_H_
 
+
+#include <sstream>
+#include <iomanip>
+
 #include <cstdint>
 #include <string>
+#include <cstring>
 #include <string_view>
 #include <map>
 #include <functional>
@@ -91,6 +96,182 @@ enum class ResponseCode {
 	HttpVersionNotSupported = 505
 };
 
+enum class WebSocketOpCode : unsigned char
+{
+	Continuation = 0X0, // This frame continues the payload from the previous frame.
+	Text= 0x1,          // Denotes a text frame. Text frames are UTF-8 decoded by the server.
+	Binary = 0x2,       // Denotes a binary frame. Binary frames are delivered unchanged by the server.
+	// 0x03-0x07	Reserved for future use.
+	Close = 0x8,        // Denotes the client wishes to close the connection.
+	Ping = 0x9,         // A ping frame. Serves as a heartbeat mechanism ensuring the connection is still alive. The receiver must respond with a pong.
+	Pong = 0xA,         // A pong frame. Serves as a heartbeat mechanism ensuring the connection is still alive. The receiver must respond with a ping frame.
+    // 0x0b-0x0f	Reserved for future use.
+};
+
+
+struct WebSocketHeaderRaw
+{
+	bool final_fragment{true};
+	//char RSV1 : 1;
+	//char RSV2 : 1;
+	//char RSV3 : 1;
+	WebSocketOpCode op_code{WebSocketOpCode::Text};
+	bool is_masked{false};
+	std::uint64_t payload_length{0};
+	unsigned int payload_shift{2};
+	unsigned char *masks{nullptr};
+
+	WebSocketHeaderRaw() {};
+	
+	void set_len(std::uint64_t length){
+		is_masked = false;
+		payload_length = length;
+		if(length > 0xFFFF){
+			payload_shift = 10;
+		}else if(length > 125){
+			payload_shift = 4;
+		}else{
+			payload_shift = 2;
+		}
+	}
+	
+	/* Assume that bytes has the complete header with correct length, which varies from 2 to 14 bytes. */
+	void load_from_bytes(unsigned char* bytes){
+		
+		final_fragment = (bytes[0] >> 7);
+		op_code = (WebSocketOpCode)(bytes[0] & 0x0F);
+		is_masked = (bytes[1] >> 7);
+		payload_length = (bytes[1] & 0x7F);
+		
+		if(payload_length == 126){
+			payload_length = (((std::uint64_t)bytes[2]) << 8) | (std::uint64_t)bytes[3];
+			payload_shift += 2;
+		}else if (payload_length == 127){
+			payload_length = (std::uint64_t)bytes[9];
+			payload_length |= ((std::uint64_t)bytes[8]) << 8;
+			payload_length |= ((std::uint64_t)bytes[7]) << 16;
+			payload_length |= ((std::uint64_t)bytes[6]) << 24;
+			payload_length |= ((std::uint64_t)bytes[5]) << 32;
+			payload_length |= ((std::uint64_t)bytes[4]) << 40;
+			payload_length |= ((std::uint64_t)bytes[3]) << 48;
+			payload_length |= ((std::uint64_t)bytes[2]) << 56;
+			payload_shift += 8;
+		}
+		if(is_masked){
+			masks = &bytes[payload_shift];
+			payload_shift += 4;
+		}
+	}
+	
+	/* Assume that buff has enought space for the header, which varies from 2 to 14 bytes. */
+	void write_to_buff(unsigned char *buff){
+		
+		buff[0]  = (((unsigned char)final_fragment) << 7);
+		buff[0] |= (((unsigned char)op_code) & 0x0F);
+		buff[1]  = (((unsigned char)is_masked) << 7);
+		//buff[1] |= (((unsigned char)payload_length) & 0x7F);		
+		
+		if(payload_length > 0xFFFF){
+			buff[1] |= (127 & 0x7F);
+			buff[2]  = (unsigned char)((payload_length >> 56) & 0xFF);
+			buff[3]  = (unsigned char)((payload_length >> 48) & 0xFF);
+			buff[4]  = (unsigned char)((payload_length >> 40) & 0xFF);
+			buff[5]  = (unsigned char)((payload_length >> 32) & 0xFF);
+			buff[6]  = (unsigned char)((payload_length >> 24) & 0xFF);
+			buff[7]  = (unsigned char)((payload_length >> 16) & 0xFF);
+			buff[8]  = (unsigned char)((payload_length >> 8) & 0xFF);
+			buff[9]  = (unsigned char)(payload_length & 0xFF);
+
+			payload_shift = 10;
+		}else if (payload_length > 125){
+			buff[1] |= (126 & 0x7F);
+			buff[2]  = (unsigned char)(payload_length >> 8);
+			buff[3]  = (unsigned char)(payload_length & 0xFF);
+			
+			payload_shift = 4;
+		}else{
+			buff[1] |= (unsigned char)(payload_length & 0x7F);
+			payload_shift = 2;
+		}
+
+		if(is_masked & (masks != nullptr)){
+			
+			buff[payload_shift++]  = (unsigned char)((payload_length >> 24) & 0xFF);
+			buff[payload_shift++]  = (unsigned char)((payload_length >> 16) & 0xFF);
+			buff[payload_shift++]  = (unsigned char)((payload_length >> 8) & 0xFF);
+			buff[payload_shift++]  = (unsigned char)(payload_length & 0xFF);
+			
+		}
+
+	}
+	
+	/*in_buffer and out_buffer contain the complete message, including header */
+	void unmask(char *out_buffer, const char *in_buffer, std::uint64_t length)
+	{
+		if(out_buffer == nullptr or in_buffer == nullptr) {return;} //error
+		
+		if(is_masked){
+			const char *in_ptr = &in_buffer[payload_shift];
+			char *out_ptr = &out_buffer[payload_shift];
+			if(length < (std::uint64_t)payload_shift)  {return;} //error
+			length -= payload_shift;
+
+			for (std::uint64_t i = 0; i < length; i++){
+				printf(" >>> unmask in[%ld] = %X, mask = %X\n", i, (unsigned int)in_buffer[i], (unsigned int)masks[i % 4]);
+				out_ptr[i] = in_ptr[i] ^ masks[i % 4];
+				printf(" >>> unmask out[%ld] = %X\n", i, (unsigned int)out_buffer[i]);
+			}
+		}
+	}
+	
+	std::string to_string(){
+		
+		auto to_hex = [](int value) -> std::string{
+			std::stringstream ss;
+			ss << std::hex << value;
+			return ss.str();
+		};
+		
+		std::string result = "WebSocketHeaderRaw: ";
+		result += "FinalFragment: "+ std::to_string(final_fragment) + ", ";
+		result += "OpCode: "       + opcode_to_string(op_code)      + ", ";
+		result += "IsMasked: "     + std::to_string(is_masked)      + ", ";
+		result += "PayloadLength: "+ std::to_string(payload_length) + ", ";
+		if(masks != nullptr){
+			result += "Masks: "+ to_hex(masks[0]) + " "+ to_hex(masks[1]) + " "+ to_hex(masks[2]) + " "+ to_hex(masks[3]) + ", ";
+		}
+		return result;
+	}
+	std::string opcode_to_string(WebSocketOpCode op){
+		std::string result = "";
+
+		switch(op){
+			case WebSocketOpCode::Continuation: 
+				result = "Continuation";
+				break;
+			case WebSocketOpCode::Text: 
+				result = "Text";
+				break;
+			case WebSocketOpCode::Binary: 
+				result = "Binary";
+				break;
+			case WebSocketOpCode::Close: 
+				result = "Close";
+				break;
+			case WebSocketOpCode::Ping: 
+				result = "Ping";
+				break;
+			case WebSocketOpCode::Pong: 
+				result = "Pong";
+				break;
+			default:
+				result = "UNKNOWN";
+		}
+
+		return result;
+	}
+};
+
 /**
 	HttpServer initialization attributes
 */
@@ -109,8 +290,9 @@ struct EventData {
 	EventData() : fd{0}, length{0}, cursor{0}, capacity_{100240} {buffer = new char[capacity_+1];}
 	EventData(size_t capacity) : fd{0}, length{0}, cursor{0}, capacity_{capacity} {buffer = new char[capacity_+1];}
 	~EventData() {delete[] buffer;}
-	int id;
+	unsigned long int id;
 	int fd;
+	bool websocket{false}; // Do not treat this as a HTTP socket
 	bool keep_alive{false};
 	size_t length; // number of bytes
 	size_t cursor; // for parcial reception/transmission
@@ -126,8 +308,8 @@ struct EventData {
 		std::cout << ":           id = " << id<< "\n";
 		std::cout << ":           fd = " << fd<< "\n";
 		std::cout << ":   keep_alive = " << keep_alive<< "\n";
-		std::cout << ":       length = " << length<< "\n";
-		std::cout << ":       cursor = " << cursor<< "\n";
+		//std::cout << ":       length = " << length<< "\n";
+		//std::cout << ":       cursor = " << cursor<< "\n";
 
 	}
 
@@ -144,7 +326,9 @@ struct HttpRequest{
 	https://www.aisangam.com/blog/http-request-message-format-well-explained/
 	*/
 	HttpRequest() = default;
-	EventData* event_data_ptr{nullptr};	
+	EventData* event_data_ptr{nullptr};
+	unsigned long int id;
+
 	//HttpRequestType method_type {HttpRequestType::UNKNOWN};
 	std::string method{""};
 	std::string uri{"/"};
@@ -187,15 +371,60 @@ struct HttpResponse{
 	std::string body_message{""};
 };
 
+/**
+	Websocket income message
+*/
+struct WsIncome{
+
+	WsIncome(char *const buff, const size_t buff_size): buff_ptr(buff), capacity(buff_size){};
+	EventData* event_data_ptr{nullptr};
+	WebSocketHeaderRaw ws_header{};
+	unsigned long int id{0};
+	
+	size_t length{0}; // number of bytes
+	char *const buff_ptr;
+	const size_t capacity; // Max allowed number of bytes
+
+};
+
+/**
+	Websocket response message
+*/
+struct WsResponse{
+	/*
+	https://www.practical-go-lessons.com/chap-26-basic-http-server
+	https://www.aisangam.com/blog/http-request-message-format-well-explained/
+	*/
+	WsResponse(char *const buff, const size_t buff_size): buff_ptr(buff), capacity(buff_size){};
+	EventData* event_data_ptr{nullptr};
+	WebSocketHeaderRaw ws_header{};
+	bool close_connection{false}; // Set to tru to close the WS connection
+
+	size_t length{0}; // number of bytes
+	char *const buff_ptr;
+	const size_t capacity; // Max allowed number of bytes
+};
+
+
 struct Request_Callback_Interface{
 	/**
-		Callback to process a request from the server and to answer with response.
+		Callback to process a HTTP request from the server and to answer with response.
 		The caller chall ensure the correct allocation of the parameters.
 		Pure virtual function.
 		
 		return: true if message was correctly consumed and response is ready.
 	*/
 	virtual bool on_request(HttpRequest* request, HttpResponse* response) = 0; // pure virtual
+	/**
+		Callback to process a Websocket income message.
+		The caller chall ensure the correct allocation of the parameters.
+		Pure virtual function.
+		
+		Note: Websockets must first be accepted as a regular HTTP request.
+		
+		return: true if message was correctly consumed and response is ready.
+	*/
+	virtual bool on_websocket(WsIncome* income, WsResponse* response) = 0; // pure virtual
 	//virtual bool on_error(const HttpRequest* request, HttpResponse* response) = 0;   // pure virtual
 };
 
@@ -230,5 +459,5 @@ extern int open_browser(std::string url);
 
 extern std::string get_sec_websocket_accept(std::string key);
 
-extern void save_buffer(std::string filename, const char* buffer, size_t len);
+extern void save_buffer(std::string filename, const char* buffer, size_t len, bool append = false);
 #endif // _SERVER_H_

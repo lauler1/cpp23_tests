@@ -15,8 +15,6 @@ This is a Linux only code
 #include <sys/types.h>
 #include <unistd.h>
 
-static int epoll_id = 1001; // For debug only
-
 
 //Thios is the platform specific implementation
 class HttpServer::PlatSocketImpl{
@@ -46,8 +44,10 @@ class HttpServer::PlatSocketImpl{
 		int sock_fd_{0};
 		
 		ServError serv_listen();
+		static int epoll_id; // For debug only
 
 };
+int HttpServer::PlatSocketImpl::epoll_id = 0;
 
 HttpServer::HttpServer(ServInit params, Request_Callback_Interface &on_request): conf_{params},
 				proc_request_{on_request},
@@ -64,6 +64,7 @@ HttpServer::HttpServer(ServInit params, Request_Callback_Interface &on_request):
 HttpServer::~HttpServer() = default;
 
 int HttpServer::start(std::string_view start_page){
+save_buffer("log3.txt", "Start\n", 6);
 	
 	if(start_page == ""){
 		start_page = conf_.default_page;
@@ -224,51 +225,68 @@ ServError HttpServer::PlatSocketImpl::run_socket(){
 					//Do something in the main class
 					auto [response_string, buff_size, bin_buff] = http_server_->proc_raw_request(event_data_ptr);
 					
-					std::cout << "---------------------------------------------------\n";
-					std::cout << " Response\n";
-					std::cout << "---------------------------------------------------\n";
-					std::cout << response_string.c_str() << "\n\n";
-
-					auto expected_capacity = response_string.length() + buff_size;
-					
-					// Need more space?
-					if(event_data_ptr->get_capacity() < expected_capacity){
-						auto old_id = event_data_ptr->id;
-						auto old_keep_alive = event_data_ptr->keep_alive;
-						delete(event_data_ptr); //Delete old data.ptr
+					if(response_string == ""){//This is a websocket
+						std::cout << "---------------------------------------------------\n";
+						std::cout << " Websocket Response\n";
+						std::cout << "---------------------------------------------------\n";
+						bin_buff[buff_size] = 0;
+						std::cout << "    To send " << buff_size << " bytes\n";
+						std::cout << "    Message:\n" << bin_buff << "\n\n";
 						
-						event_data_ptr = new EventData(expected_capacity); //Create a new one bigger
-						event_data_ptr->fd = fd;
-						event_data_ptr->id = old_id;
-						event_data_ptr->keep_alive = old_keep_alive;
-					}
-					
-					// Binary data?
-					if(bin_buff != nullptr and buff_size > 0){
-
-						std::memcpy(event_data_ptr->buffer, response_string.c_str(), response_string.length());
-						std::memcpy(&event_data_ptr->buffer[response_string.length()], bin_buff, buff_size);
-
-						event_data_ptr->length = expected_capacity;
-						/*std::cout << "  event_data_ptr->length: " << event_data_ptr->length << "\n";
-						std::cout << "  buff_size: " << buff_size<< "\n";
-						std::cout << "  sizeof(event_data_ptr->buffer): " << sizeof(event_data_ptr->buffer) << "\n";
-						std::cout << "  expected_capacity: " << expected_capacity << "\n";
-						std::cout << "  event_data_ptr->get_capacity(): " << event_data_ptr->get_capacity() << "\n";*/
+						// Websockets uses bin_buff = event_data_ptr->buffer, no delete needed
+						//continue;
 
 					}else{
-						std::strcpy(event_data_ptr->buffer, response_string.c_str());
-						event_data_ptr->length = response_string.length();
+					
+						std::cout << "---------------------------------------------------\n";
+						std::cout << " Http Response\n";
+						std::cout << "---------------------------------------------------\n";
+						std::cout << response_string.c_str() << "\n\n";
+
+						auto expected_capacity = response_string.length() + buff_size;
+						
+						// Need more space?
+						if(event_data_ptr->get_capacity() < expected_capacity){
+							auto old_id = event_data_ptr->id;
+							auto old_keep_alive = event_data_ptr->keep_alive;
+							delete(event_data_ptr); //Delete old data.ptr
+							
+							event_data_ptr = new EventData(expected_capacity); //Create a new one bigger
+							event_data_ptr->fd = fd;
+							event_data_ptr->id = old_id;
+							event_data_ptr->keep_alive = old_keep_alive;
+						}
+						
+						// Binary data?
+						if(bin_buff != nullptr and buff_size > 0){
+
+							std::memcpy(event_data_ptr->buffer, response_string.c_str(), response_string.length());
+							std::memcpy(&event_data_ptr->buffer[response_string.length()], bin_buff, buff_size);
+
+							event_data_ptr->length = expected_capacity;
+							delete[] bin_buff;
+							/*std::cout << "  event_data_ptr->length: " << event_data_ptr->length << "\n";
+							std::cout << "  buff_size: " << buff_size<< "\n";
+							std::cout << "  sizeof(event_data_ptr->buffer): " << sizeof(event_data_ptr->buffer) << "\n";
+							std::cout << "  expected_capacity: " << expected_capacity << "\n";
+							std::cout << "  event_data_ptr->get_capacity(): " << event_data_ptr->get_capacity() << "\n";*/
+
+						}else{
+							std::strcpy(event_data_ptr->buffer, response_string.c_str());
+							event_data_ptr->length = response_string.length();
+						}
 					}
 
-					event_data_ptr->cursor = 0;
-					ev_.data.ptr = event_data_ptr;
+					if(event_data_ptr->length > 0){ // If data to send
+						event_data_ptr->cursor = 0;
+						ev_.data.ptr = event_data_ptr;
 
-					ev_.events = EPOLLOUT | EPOLLET;
-					if (epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &ev_) < 0) {
-						perror("epoll_ctl");
+						ev_.events = EPOLLOUT | EPOLLET;
+						if (epoll_ctl(epoll_fd_, EPOLL_CTL_MOD, fd, &ev_) < 0) {
+							perror("epoll_ctl");
+						}
 					}
-			
+
 					continue; //Process the next item in the loop
 				}
 				else {
@@ -289,7 +307,7 @@ ServError HttpServer::PlatSocketImpl::run_socket(){
 				std::cout << "HttpServer::PlatSocketImpl::run_socket["<<n<<"]  fd EPOLLOUT "<<event_data_ptr->length<<"\n";
 				event_data_ptr->print("EPOLLOUT");
 				size_t byte_count = send(fd, event_data_ptr->buffer + event_data_ptr->cursor, event_data_ptr->length, 0);
-				save_buffer("log3.txt", event_data_ptr->buffer + event_data_ptr->cursor, event_data_ptr->length);
+				save_buffer("log3.txt", event_data_ptr->buffer + event_data_ptr->cursor, event_data_ptr->length, true);
 				if (byte_count >= 0) {
 					if (byte_count < event_data_ptr->length) {  // there are still bytes to write
 						std::cout << "     More data to send\n";

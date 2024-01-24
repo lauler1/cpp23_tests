@@ -1,6 +1,9 @@
 #include "server.h"
 #include <iostream>
 #include <cstring>
+#include <sstream>
+#include <iomanip>
+#include <ranges>
 
 void test1(HttpServer &server) {
     std::cout << "test1\n";
@@ -25,11 +28,43 @@ struct Eel: Request_Callback_Interface{
 	std::string name = "Test Server";
 
 	bool on_request(HttpRequest* request, HttpResponse* response) override;
+	bool on_websocket(WsIncome* income, WsResponse* response) override;
 };
+
+
+std::string bufferToHexString(const unsigned char* buffer, size_t length) {
+    std::stringstream hexString;
+    for (size_t i = 0; i < length; ++i) {
+        hexString << std::hex << std::setw(2) << std::setfill('0') << (int)buffer[i];
+    }
+    return hexString.str();
+}
+
+bool Eel::on_websocket([[maybe_unused]] WsIncome* income, [[maybe_unused]] WsResponse* response) {
+	std::cout << "###################################################\n";
+	std::cout << " on_websocket ("<<name<<") id = "<< income->id <<"\n";
+	std::cout << "###################################################\n";
+	std::cout << "    Received " << income->length << " bytes\n";
+	std::cout << "     income WebSocketHeader:\n" << income->ws_header.to_string() << "\n\n";
+	std::cout << bufferToHexString((unsigned char*)income->buff_ptr, income->length) << "\n\n";
+	std::cout << "     Message:\n" << income->buff_ptr << "\n\n";
+	
+	
+	char * payload_ptr = response->buff_ptr+2;
+	size_t len = sprintf(payload_ptr, "Answer from the Server: %s, id=%lu.", name.c_str(), income->id);
+	std::cout << "    response WebSocketHeader:\n" << response->ws_header.to_string() << "\n\n";
+	std::cout << "     to send: " << len << " bytes of payload\n";
+	std::cout << "     message: " << payload_ptr << "\n\n";
+	response->ws_header.set_len(len);
+	response->length = len+2;
+	response->ws_header.write_to_buff((unsigned char *)response->buff_ptr);
+	std::cout << "     response WebSocketHeader:\n      " << response->ws_header.to_string() << "\n\n";
+	return true; //response processed successfully
+}
 
 bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* response) {
 	std::cout << "###################################################\n";
-	std::cout << " on_request ("<<name<<")\n";
+	std::cout << " on_request ("<<name<<") id = "<< request->id <<"\n";
 	std::cout << "###################################################\n";
 	for (const auto& [key, value] : request->headers){
 		std::cout << '[' << key << "] = " << value << ";\n";	

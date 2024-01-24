@@ -7,6 +7,7 @@
 #include <sstream>
 #include <regex>
 #include <filesystem>
+#include <cassert>
 
 unsigned char buff[] = {
 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
@@ -69,13 +70,17 @@ std::string get_sec_websocket_accept(std::string key){
 	return my_base64(hex);
 }
 
-void save_buffer(std::string filename, const char* buffer, size_t len){
+void save_buffer(std::string filename, const char* buffer, size_t len, bool append){
 	
 	if(buffer == nullptr or len <= 0 or len > 100'000'000 or filename == ""){
 		return;
 	}
+	std::ios_base::openmode mode = std::ios::binary | std::ios::out;
+	if(append){
+		mode |= std::ios::app;
+	}
 	std::ofstream outfile;
-	outfile.open(filename, std::ios::binary | std::ios::out);
+	outfile.open(filename, mode);
 	outfile.write(buffer, len); // sizeof can take a type
 	outfile.close();
 }
@@ -89,8 +94,6 @@ std::vector<std::string> split (const std::string &s, char delim) {
     }
     return result;
 }
-
-
 
 std::string get_Date(){
 	// Time stamp the response with the Date header
@@ -114,25 +117,51 @@ std::uintmax_t get_file_size(const std::string &path){
 }
 
 std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* event_data_ptr){
-	HttpRequest request{};
-	HttpResponse response{};
+	assert(event_data_ptr != nullptr);
+	
 	size_t buff_size = 0;
 	char* bin_buff = nullptr;
 	event_data_ptr->print("proc_raw_request");
 
 	save_buffer("log.txt", event_data_ptr->buffer, event_data_ptr->length);
 	
-	std::cout << "\n\ndo_something:\n" << event_data_ptr->buffer << "\n\n";
-	std::cout << "\n\nkeep_alive: " << event_data_ptr->keep_alive << "\n\n";
-    std::istringstream f{std::string(event_data_ptr->buffer)};
+	/*********************
+	Websocket Processing
+	**********************/
+	if(event_data_ptr->websocket){
+		WsIncome income{event_data_ptr->buffer, event_data_ptr->get_capacity()};
+		WsResponse response{event_data_ptr->buffer, event_data_ptr->get_capacity()};
+		std::cout << "\n\n proc_raw_request Websocket Processing\n\n";
+		income.id = event_data_ptr->id;
+		income.length = event_data_ptr->length;
+
+		income.ws_header.load_from_bytes((unsigned char*)event_data_ptr->buffer);
+		income.ws_header.unmask(event_data_ptr->buffer, event_data_ptr->buffer,event_data_ptr->length);
+
+		proc_request_.on_websocket(&income, &response);
+
+		event_data_ptr->length = response.length;
+
+		return std::make_tuple("", event_data_ptr->length, event_data_ptr->buffer);
+	}
+
+	/*********************
+	Normal HTTP Processing
+	**********************/
+    std::istringstream istrm{std::string(event_data_ptr->buffer)};
     std::string line;
+	HttpRequest request{};
+	HttpResponse response{};
 	const std::regex main_header_regex(R"((GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s(.+)\s*(HTTP\/\d+\.\d+)*(\r|\n)*)");
 	const std::regex attr_header_regex(R"((\S+):\s(.+)(\r|\n)*)");
-	
+	std::cout << "\n\n proc_raw_request Normal HTTP Processing:\n" << event_data_ptr->buffer << "\n\n";
+	std::cout << "\n\nkeep_alive: " << event_data_ptr->keep_alive << "\n\n";
 
+
+	request.id = event_data_ptr->id;
 	int i = 0;
-    while (std::getline(f, line)) {
-        std::cout << "    " << (i++) << ": " << line << std::endl;
+	while (std::getline(istrm, line)) {
+		std::cout << "    " << (i++) << ": " << line << std::endl;
 		unsigned long pos;
 		if((pos=line.find('\n')) != std::string::npos) line.erase(pos);
 		if((pos=line.find('\r')) != std::string::npos) line.erase(pos);
@@ -176,18 +205,17 @@ std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* e
 			if(key=="Upgrade" and value == "websocket"){
 				std::cout << "        Upgrade: websocket --> keep_alive \n";
 				event_data_ptr->keep_alive = true;
+				event_data_ptr->websocket = true;
 			}
 		}
 		else{ // TODO (something else, e.g. user raw data)
 			//std::cout << "\n proc_raw_request:\n" << event_data_ptr->buffer << "\n\n";
 			//std::cout << "    Http header error on line " << (i++) << ": " << line << std::endl;
 		}
-    }	
-	
+	}
 
 	proc_request_.on_request(&request, &response);
 
-	
 	if((response.body_type == BodyType::TXT_FILE) or (response.body_type == BodyType::BIN_FILE)){
 		if(!std::filesystem::exists(response.body_message)){
 			std::cout << "    FILE DOES NOT EXIST: " << response.body_message << "\n";

@@ -14,6 +14,8 @@
 #include <optional>
 #include <tuple>
 #include <iostream>
+
+
 #include "mime.h"
 
 //#include "platform.h" //implementation dependent, e.g.: linux.cpp
@@ -294,7 +296,7 @@ struct EventData {
 	int fd;
 	bool websocket{false}; // Do not treat this as a HTTP socket
 	bool keep_alive{false};
-	size_t length; // number of bytes
+	ssize_t length; // number of bytes
 	size_t cursor; // for parcial reception/transmission
 	char *buffer;
 	

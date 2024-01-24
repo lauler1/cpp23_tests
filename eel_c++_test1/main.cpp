@@ -79,11 +79,15 @@ bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* respon
 	if(request->method == "GET"){
 		std::cout << "  " << request->method << " resource " << request->resource << "\n";
 		if(request->resource.find(".") != std::string::npos){
+			//get only the extension e.g. "bla/blabla.html" -> "html"
+			auto extension = request->resource.substr(request->resource.find("."));
+			if(extension.size() > 1) extension = extension.substr(1);
 			
-			std::cout << "    of type " << request->resource.substr(request->resource.find(".")) << "\n";
+			std::cout << "    of type " << request->resource << "\n";
 			MimeType mime{};
-			std::string mime_type = mime.get_mime_from_resource(request->resource);
-			std::cout << " MIME type = " << mime_type<< "\n";
+			
+			std::string mime_type = std::string(mime.get_mime_from_resource(extension));
+			std::cout << "    MIME type = " << mime_type<< "\n";
 			if(mime_type.find("text/") != std::string::npos){
 				response->body_type = BodyType::TXT_FILE;
 			}else{
@@ -111,6 +115,12 @@ bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* respon
 
 int main() {
 	Eel test{};// = new(Test);
+	
+			/*MimeType mime{};
+			std::string mime_type = std::string(mime.get_mime_from_resource("html"));
+			std::cout << " MIME type = " << mime_type<< "\n";	
+			mime_type = std::string(mime.get_mime_from_resource("jpg"));
+			std::cout << " MIME type = " << mime_type<< "\n";	*/
 	
 	auto server = HttpServer({.port = 8001, .dir{"web"}, .open_browser=false}, test);
 	

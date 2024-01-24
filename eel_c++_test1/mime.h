@@ -4,1017 +4,1017 @@
 #include <map>
 #include <string_view>
 #include <utility>
-#include  <span>
+#include <span>
 #include <algorithm>
+
 
 /**
 	Http response data
 */
 struct MimeType{
-	std::map<std::string, std::string> list;
 	
 	~MimeType() = default;
-	MimeType(){
-		list["ez"] = "application/andrew-inset";
-		list["aw"] = "application/applixware";
-		list["atom"] = "application/atom+xml";
-		list["atomcat"] = "application/atomcat+xml";
-		list["atomsvc"] = "application/atomsvc+xml";
-		list["ccxml"] = "application/ccxml+xml";
-		list["cdmia"] = "application/cdmi-capability";
-		list["cdmic"] = "application/cdmi-container";
-		list["cdmid"] = "application/cdmi-domain";
-		list["cdmio"] = "application/cdmi-object";
-		list["cdmiq"] = "application/cdmi-queue";
-		list["cu"] = "application/cu-seeme";
-		list["davmount"] = "application/davmount+xml";
-		list["dbk"] = "application/docbook+xml";
-		list["dssc"] = "application/dssc+der";
-		list["xdssc"] = "application/dssc+xml";
-		list["ecma"] = "application/ecmascript";
-		list["emma"] = "application/emma+xml";
-		list["epub"] = "application/epub+zip";
-		list["exi"] = "application/exi";
-		list["pfr"] = "application/font-tdpfr";
-		list["gml"] = "application/gml+xml";
-		list["gpx"] = "application/gpx+xml";
-		list["gxf"] = "application/gxf";
-		list["stk"] = "application/hyperstudio";
-		list["ink"] = "application/inkml+xml";
-		list["inkml"] = "application/inkml+xml";
-		list["ipfix"] = "application/ipfix";
-		list["jar"] = "application/java-archive";
-		list["ser"] = "application/java-serialized-object";
-		list["class"] = "application/java-vm";
-		list["js"] = "application/javascript";
-		list["json"] = "application/json";
-		list["jsonml"] = "application/jsonml+json";
-		list["lostxml"] = "application/lost+xml";
-		list["hqx"] = "application/mac-binhex40";
-		list["cpt"] = "application/mac-compactpro";
-		list["mads"] = "application/mads+xml";
-		list["mrc"] = "application/marc";
-		list["mrcx"] = "application/marcxml+xml";
-		list["ma"] = "application/mathematica";
-		list["nb"] = "application/mathematica";
-		list["mb"] = "application/mathematica";
-		list["mathml"] = "application/mathml+xml";
-		list["mbox"] = "application/mbox";
-		list["mscml"] = "application/mediaservercontrol+xml";
-		list["metalink"] = "application/metalink+xml";
-		list["meta4"] = "application/metalink4+xml";
-		list["mets"] = "application/mets+xml";
-		list["mods"] = "application/mods+xml";
-		list["m21"] = "application/mp21";
-		list["mp21"] = "application/mp21";
-		list["mp4s"] = "application/mp4";
-		list["doc"] = "application/msword";
-		list["dot"] = "application/msword";
-		list["mxf"] = "application/mxf";
-		list["bin"] = "application/octet-stream";
-		list["dms"] = "application/octet-stream";
-		list["lrf"] = "application/octet-stream";
-		list["mar"] = "application/octet-stream";
-		list["so"] = "application/octet-stream";
-		list["dist"] = "application/octet-stream";
-		list["distz"] = "application/octet-stream";
-		list["pkg"] = "application/octet-stream";
-		list["bpk"] = "application/octet-stream";
-		list["dump"] = "application/octet-stream";
-		list["elc"] = "application/octet-stream";
-		list["deploy"] = "application/octet-stream";
-		list["oda"] = "application/oda";
-		list["opf"] = "application/oebps-package+xml";
-		list["ogx"] = "application/ogg";
-		list["omdoc"] = "application/omdoc+xml";
-		list["onetoc"] = "application/onenote";
-		list["onetoc2"] = "application/onenote";
-		list["onetmp"] = "application/onenote";
-		list["onepkg"] = "application/onenote";
-		list["oxps"] = "application/oxps";
-		list["xer"] = "application/patch-ops-error+xml";
-		list["pdf"] = "application/pdf";
-		list["pgp"] = "application/pgp-encrypted";
-		list["asc"] = "application/pgp-signature";
-		list["sig"] = "application/pgp-signature";
-		list["prf"] = "application/pics-rules";
-		list["p10"] = "application/pkcs10";
-		list["p7m"] = "application/pkcs7-mime";
-		list["p7c"] = "application/pkcs7-mime";
-		list["p7s"] = "application/pkcs7-signature";
-		list["p8"] = "application/pkcs8";
-		list["ac"] = "application/pkix-attr-cert";
-		list["cer"] = "application/pkix-cert";
-		list["crl"] = "application/pkix-crl";
-		list["pkipath"] = "application/pkix-pkipath";
-		list["pki"] = "application/pkixcmp";
-		list["pls"] = "application/pls+xml";
-		list["ai"] = "application/postscript";
-		list["eps"] = "application/postscript";
-		list["ps"] = "application/postscript";
-		list["cww"] = "application/prs.cww";
-		list["pskcxml"] = "application/pskc+xml";
-		list["rdf"] = "application/rdf+xml";
-		list["rif"] = "application/reginfo+xml";
-		list["rnc"] = "application/relax-ng-compact-syntax";
-		list["rl"] = "application/resource-lists+xml";
-		list["rld"] = "application/resource-lists-diff+xml";
-		list["rs"] = "application/rls-services+xml";
-		list["gbr"] = "application/rpki-ghostbusters";
-		list["mft"] = "application/rpki-manifest";
-		list["roa"] = "application/rpki-roa";
-		list["rsd"] = "application/rsd+xml";
-		list["rss"] = "application/rss+xml";
-		list["rtf"] = "application/rtf";
-		list["sbml"] = "application/sbml+xml";
-		list["scq"] = "application/scvp-cv-request";
-		list["scs"] = "application/scvp-cv-response";
-		list["spq"] = "application/scvp-vp-request";
-		list["spp"] = "application/scvp-vp-response";
-		list["sdp"] = "application/sdp";
-		list["setpay"] = "application/set-payment-initiation";
-		list["setreg"] = "application/set-registration-initiation";
-		list["shf"] = "application/shf+xml";
-		list["smi"] = "application/smil+xml";
-		list["smil"] = "application/smil+xml";
-		list["rq"] = "application/sparql-query";
-		list["srx"] = "application/sparql-results+xml";
-		list["gram"] = "application/srgs";
-		list["grxml"] = "application/srgs+xml";
-		list["sru"] = "application/sru+xml";
-		list["ssdl"] = "application/ssdl+xml";
-		list["ssml"] = "application/ssml+xml";
-		list["tei"] = "application/tei+xml";
-		list["teicorpus"] = "application/tei+xml";
-		list["tfi"] = "application/thraud+xml";
-		list["tsd"] = "application/timestamped-data";
-		list["plb"] = "application/vnd.3gpp.pic-bw-large";
-		list["psb"] = "application/vnd.3gpp.pic-bw-small";
-		list["pvb"] = "application/vnd.3gpp.pic-bw-var";
-		list["tcap"] = "application/vnd.3gpp2.tcap";
-		list["pwn"] = "application/vnd.3m.post-it-notes";
-		list["aso"] = "application/vnd.accpac.simply.aso";
-		list["imp"] = "application/vnd.accpac.simply.imp";
-		list["acu"] = "application/vnd.acucobol";
-		list["atc"] = "application/vnd.acucorp";
-		list["acutc"] = "application/vnd.acucorp";
-		list["air"] = "application/vnd.adobe.air-application-installer-package+zip";
-		list["fcdt"] = "application/vnd.adobe.formscentral.fcdt";
-		list["fxp"] = "application/vnd.adobe.fxp";
-		list["fxpl"] = "application/vnd.adobe.fxp";
-		list["xdp"] = "application/vnd.adobe.xdp+xml";
-		list["xfdf"] = "application/vnd.adobe.xfdf";
-		list["ahead"] = "application/vnd.ahead.space";
-		list["azf"] = "application/vnd.airzip.filesecure.azf";
-		list["azs"] = "application/vnd.airzip.filesecure.azs";
-		list["azw"] = "application/vnd.amazon.ebook";
-		list["acc"] = "application/vnd.americandynamics.acc";
-		list["ami"] = "application/vnd.amiga.ami";
-		list["apk"] = "application/vnd.android.package-archive";
-		list["cii"] = "application/vnd.anser-web-certificate-issue-initiation";
-		list["fti"] = "application/vnd.anser-web-funds-transfer-initiation";
-		list["atx"] = "application/vnd.antix.game-component";
-		list["mpkg"] = "application/vnd.apple.installer+xml";
-		list["m3u8"] = "application/vnd.apple.mpegurl";
-		list["swi"] = "application/vnd.aristanetworks.swi";
-		list["iota"] = "application/vnd.astraea-software.iota";
-		list["aep"] = "application/vnd.audiograph";
-		list["mpm"] = "application/vnd.blueice.multipass";
-		list["bmi"] = "application/vnd.bmi";
-		list["rep"] = "application/vnd.businessobjects";
-		list["cdxml"] = "application/vnd.chemdraw+xml";
-		list["mmd"] = "application/vnd.chipnuts.karaoke-mmd";
-		list["cdy"] = "application/vnd.cinderella";
-		list["cla"] = "application/vnd.claymore";
-		list["rp9"] = "application/vnd.cloanto.rp9";
-		list["c4g"] = "application/vnd.clonk.c4group";
-		list["c4d"] = "application/vnd.clonk.c4group";
-		list["c4f"] = "application/vnd.clonk.c4group";
-		list["c4p"] = "application/vnd.clonk.c4group";
-		list["c4u"] = "application/vnd.clonk.c4group";
-		list["c11amc"] = "application/vnd.cluetrust.cartomobile-config";
-		list["c11amz"] = "application/vnd.cluetrust.cartomobile-config-pkg";
-		list["csp"] = "application/vnd.commonspace";
-		list["cdbcmsg"] = "application/vnd.contact.cmsg";
-		list["cmc"] = "application/vnd.cosmocaller";
-		list["clkx"] = "application/vnd.crick.clicker";
-		list["clkk"] = "application/vnd.crick.clicker.keyboard";
-		list["clkp"] = "application/vnd.crick.clicker.palette";
-		list["clkt"] = "application/vnd.crick.clicker.template";
-		list["clkw"] = "application/vnd.crick.clicker.wordbank";
-		list["wbs"] = "application/vnd.criticaltools.wbs+xml";
-		list["pml"] = "application/vnd.ctc-posml";
-		list["ppd"] = "application/vnd.cups-ppd";
-		list["car"] = "application/vnd.curl.car";
-		list["pcurl"] = "application/vnd.curl.pcurl";
-		list["dart"] = "application/vnd.dart";
-		list["rdz"] = "application/vnd.data-vision.rdz";
-		list["uvf"] = "application/vnd.dece.data";
-		list["uvvf"] = "application/vnd.dece.data";
-		list["uvd"] = "application/vnd.dece.data";
-		list["uvvd"] = "application/vnd.dece.data";
-		list["uvt"] = "application/vnd.dece.ttml+xml";
-		list["uvvt"] = "application/vnd.dece.ttml+xml";
-		list["uvx"] = "application/vnd.dece.unspecified";
-		list["uvvx"] = "application/vnd.dece.unspecified";
-		list["uvz"] = "application/vnd.dece.zip";
-		list["uvvz"] = "application/vnd.dece.zip";
-		list["fe_launch"] = "application/vnd.denovo.fcselayout-link";
-		list["dna"] = "application/vnd.dna";
-		list["mlp"] = "application/vnd.dolby.mlp";
-		list["dpg"] = "application/vnd.dpgraph";
-		list["dfac"] = "application/vnd.dreamfactory";
-		list["kpxx"] = "application/vnd.ds-keypoint";
-		list["ait"] = "application/vnd.dvb.ait";
-		list["svc"] = "application/vnd.dvb.service";
-		list["geo"] = "application/vnd.dynageo";
-		list["mag"] = "application/vnd.ecowin.chart";
-		list["nml"] = "application/vnd.enliven";
-		list["esf"] = "application/vnd.epson.esf";
-		list["msf"] = "application/vnd.epson.msf";
-		list["qam"] = "application/vnd.epson.quickanime";
-		list["slt"] = "application/vnd.epson.salt";
-		list["ssf"] = "application/vnd.epson.ssf";
-		list["es3"] = "application/vnd.eszigno3+xml";
-		list["et3"] = "application/vnd.eszigno3+xml";
-		list["ez2"] = "application/vnd.ezpix-album";
-		list["ez3"] = "application/vnd.ezpix-package";
-		list["fdf"] = "application/vnd.fdf";
-		list["mseed"] = "application/vnd.fdsn.mseed";
-		list["seed"] = "application/vnd.fdsn.seed";
-		list["dataless"] = "application/vnd.fdsn.seed";
-		list["gph"] = "application/vnd.flographit";
-		list["ftc"] = "application/vnd.fluxtime.clip";
-		list["fm"] = "application/vnd.framemaker";
-		list["frame"] = "application/vnd.framemaker";
-		list["maker"] = "application/vnd.framemaker";
-		list["book"] = "application/vnd.framemaker";
-		list["fnc"] = "application/vnd.frogans.fnc";
-		list["ltf"] = "application/vnd.frogans.ltf";
-		list["fsc"] = "application/vnd.fsc.weblaunch";
-		list["oas"] = "application/vnd.fujitsu.oasys";
-		list["oa2"] = "application/vnd.fujitsu.oasys2";
-		list["oa3"] = "application/vnd.fujitsu.oasys3";
-		list["fg5"] = "application/vnd.fujitsu.oasysgp";
-		list["bh2"] = "application/vnd.fujitsu.oasysprs";
-		list["ddd"] = "application/vnd.fujixerox.ddd";
-		list["xdw"] = "application/vnd.fujixerox.docuworks";
-		list["xbd"] = "application/vnd.fujixerox.docuworks.binder";
-		list["fzs"] = "application/vnd.fuzzysheet";
-		list["txd"] = "application/vnd.genomatix.tuxedo";
-		list["ggb"] = "application/vnd.geogebra.file";
-		list["ggt"] = "application/vnd.geogebra.tool";
-		list["gex"] = "application/vnd.geometry-explorer";
-		list["gre"] = "application/vnd.geometry-explorer";
-		list["gxt"] = "application/vnd.geonext";
-		list["g2w"] = "application/vnd.geoplan";
-		list["g3w"] = "application/vnd.geospace";
-		list["gmx"] = "application/vnd.gmx";
-		list["kml"] = "application/vnd.google-earth.kml+xml";
-		list["kmz"] = "application/vnd.google-earth.kmz";
-		list["gqf"] = "application/vnd.grafeq";
-		list["gqs"] = "application/vnd.grafeq";
-		list["gac"] = "application/vnd.groove-account";
-		list["ghf"] = "application/vnd.groove-help";
-		list["gim"] = "application/vnd.groove-identity-message";
-		list["grv"] = "application/vnd.groove-injector";
-		list["gtm"] = "application/vnd.groove-tool-message";
-		list["tpl"] = "application/vnd.groove-tool-template";
-		list["vcg"] = "application/vnd.groove-vcard";
-		list["hal"] = "application/vnd.hal+xml";
-		list["zmm"] = "application/vnd.handheld-entertainment+xml";
-		list["hbci"] = "application/vnd.hbci";
-		list["les"] = "application/vnd.hhe.lesson-player";
-		list["hpgl"] = "application/vnd.hp-hpgl";
-		list["hpid"] = "application/vnd.hp-hpid";
-		list["hps"] = "application/vnd.hp-hps";
-		list["jlt"] = "application/vnd.hp-jlyt";
-		list["pcl"] = "application/vnd.hp-pcl";
-		list["pclxl"] = "application/vnd.hp-pclxl";
-		list["sfd-hdstx"] = "application/vnd.hydrostatix.sof-data";
-		list["mpy"] = "application/vnd.ibm.minipay";
-		list["afp"] = "application/vnd.ibm.modcap";
-		list["listafp"] = "application/vnd.ibm.modcap";
-		list["list3820"] = "application/vnd.ibm.modcap";
-		list["irm"] = "application/vnd.ibm.rights-management";
-		list["sc"] = "application/vnd.ibm.secure-container";
-		list["icc"] = "application/vnd.iccprofile";
-		list["icm"] = "application/vnd.iccprofile";
-		list["igl"] = "application/vnd.igloader";
-		list["ivp"] = "application/vnd.immervision-ivp";
-		list["ivu"] = "application/vnd.immervision-ivu";
-		list["igm"] = "application/vnd.insors.igm";
-		list["xpw"] = "application/vnd.intercon.formnet";
-		list["xpx"] = "application/vnd.intercon.formnet";
-		list["i2g"] = "application/vnd.intergeo";
-		list["qbo"] = "application/vnd.intu.qbo";
-		list["qfx"] = "application/vnd.intu.qfx";
-		list["rcprofile"] = "application/vnd.ipunplugged.rcprofile";
-		list["irp"] = "application/vnd.irepository.package+xml";
-		list["xpr"] = "application/vnd.is-xpr";
-		list["fcs"] = "application/vnd.isac.fcs";
-		list["jam"] = "application/vnd.jam";
-		list["rms"] = "application/vnd.jcp.javame.midlet-rms";
-		list["jisp"] = "application/vnd.jisp";
-		list["joda"] = "application/vnd.joost.joda-archive";
-		list["ktz"] = "application/vnd.kahootz";
-		list["ktr"] = "application/vnd.kahootz";
-		list["karbon"] = "application/vnd.kde.karbon";
-		list["chrt"] = "application/vnd.kde.kchart";
-		list["kfo"] = "application/vnd.kde.kformula";
-		list["flw"] = "application/vnd.kde.kivio";
-		list["kon"] = "application/vnd.kde.kontour";
-		list["kpr"] = "application/vnd.kde.kpresenter";
-		list["kpt"] = "application/vnd.kde.kpresenter";
-		list["ksp"] = "application/vnd.kde.kspread";
-		list["kwd"] = "application/vnd.kde.kword";
-		list["kwt"] = "application/vnd.kde.kword";
-		list["htke"] = "application/vnd.kenameaapp";
-		list["kia"] = "application/vnd.kidspiration";
-		list["kne"] = "application/vnd.kinar";
-		list["knp"] = "application/vnd.kinar";
-		list["skp"] = "application/vnd.koan";
-		list["skd"] = "application/vnd.koan";
-		list["skt"] = "application/vnd.koan";
-		list["skm"] = "application/vnd.koan";
-		list["sse"] = "application/vnd.kodak-descriptor";
-		list["lasxml"] = "application/vnd.las.las+xml";
-		list["lbd"] = "application/vnd.llamagraphics.life-balance.desktop";
-		list["lbe"] = "application/vnd.llamagraphics.life-balance.exchange+xml";
-		list["123"] = "application/vnd.lotus-1-2-3";
-		list["apr"] = "application/vnd.lotus-approach";
-		list["pre"] = "application/vnd.lotus-freelance";
-		list["nsf"] = "application/vnd.lotus-notes";
-		list["org"] = "application/vnd.lotus-organizer";
-		list["scm"] = "application/vnd.lotus-screencam";
-		list["lwp"] = "application/vnd.lotus-wordpro";
-		list["portpkg"] = "application/vnd.macports.portpkg";
-		list["mcd"] = "application/vnd.mcd";
-		list["mc1"] = "application/vnd.medcalcdata";
-		list["cdkey"] = "application/vnd.mediastation.cdkey";
-		list["mwf"] = "application/vnd.mfer";
-		list["mfm"] = "application/vnd.mfmp";
-		list["flo"] = "application/vnd.micrografx.flo";
-		list["igx"] = "application/vnd.micrografx.igx";
-		list["mif"] = "application/vnd.mif";
-		list["daf"] = "application/vnd.mobius.daf";
-		list["dis"] = "application/vnd.mobius.dis";
-		list["mbk"] = "application/vnd.mobius.mbk";
-		list["mqy"] = "application/vnd.mobius.mqy";
-		list["msl"] = "application/vnd.mobius.msl";
-		list["plc"] = "application/vnd.mobius.plc";
-		list["txf"] = "application/vnd.mobius.txf";
-		list["mpn"] = "application/vnd.mophun.application";
-		list["mpc"] = "application/vnd.mophun.certificate";
-		list["xul"] = "application/vnd.mozilla.xul+xml";
-		list["cil"] = "application/vnd.ms-artgalry";
-		list["cab"] = "application/vnd.ms-cab-compressed";
-		list["xls"] = "application/vnd.ms-excel";
-		list["xlm"] = "application/vnd.ms-excel";
-		list["xla"] = "application/vnd.ms-excel";
-		list["xlc"] = "application/vnd.ms-excel";
-		list["xlt"] = "application/vnd.ms-excel";
-		list["xlw"] = "application/vnd.ms-excel";
-		list["xlam"] = "application/vnd.ms-excel.addin.macroenabled.12";
-		list["xlsb"] = "application/vnd.ms-excel.sheet.binary.macroenabled.12";
-		list["xlsm"] = "application/vnd.ms-excel.sheet.macroenabled.12";
-		list["xltm"] = "application/vnd.ms-excel.template.macroenabled.12";
-		list["eot"] = "application/vnd.ms-fontobject";
-		list["chm"] = "application/vnd.ms-htmlhelp";
-		list["ims"] = "application/vnd.ms-ims";
-		list["lrm"] = "application/vnd.ms-lrm";
-		list["thmx"] = "application/vnd.ms-officetheme";
-		list["cat"] = "application/vnd.ms-pki.seccat";
-		list["stl"] = "application/vnd.ms-pki.stl";
-		list["ppt"] = "application/vnd.ms-powerpoint";
-		list["pps"] = "application/vnd.ms-powerpoint";
-		list["pot"] = "application/vnd.ms-powerpoint";
-		list["ppam"] = "application/vnd.ms-powerpoint.addin.macroenabled.12";
-		list["pptm"] = "application/vnd.ms-powerpoint.presentation.macroenabled.12";
-		list["sldm"] = "application/vnd.ms-powerpoint.slide.macroenabled.12";
-		list["ppsm"] = "application/vnd.ms-powerpoint.slideshow.macroenabled.12";
-		list["potm"] = "application/vnd.ms-powerpoint.template.macroenabled.12";
-		list["mpp"] = "application/vnd.ms-project";
-		list["mpt"] = "application/vnd.ms-project";
-		list["docm"] = "application/vnd.ms-word.document.macroenabled.12";
-		list["dotm"] = "application/vnd.ms-word.template.macroenabled.12";
-		list["wps"] = "application/vnd.ms-works";
-		list["wks"] = "application/vnd.ms-works";
-		list["wcm"] = "application/vnd.ms-works";
-		list["wdb"] = "application/vnd.ms-works";
-		list["wpl"] = "application/vnd.ms-wpl";
-		list["xps"] = "application/vnd.ms-xpsdocument";
-		list["mseq"] = "application/vnd.mseq";
-		list["mus"] = "application/vnd.musician";
-		list["msty"] = "application/vnd.muvee.style";
-		list["taglet"] = "application/vnd.mynfc";
-		list["nlu"] = "application/vnd.neurolanguage.nlu";
-		list["ntf"] = "application/vnd.nitf";
-		list["nitf"] = "application/vnd.nitf";
-		list["nnd"] = "application/vnd.noblenet-directory";
-		list["nns"] = "application/vnd.noblenet-sealer";
-		list["nnw"] = "application/vnd.noblenet-web";
-		list["ngdat"] = "application/vnd.nokia.n-gage.data";
-		list["n-gage"] = "application/vnd.nokia.n-gage.symbian.install";
-		list["rpst"] = "application/vnd.nokia.radio-preset";
-		list["rpss"] = "application/vnd.nokia.radio-presets";
-		list["edm"] = "application/vnd.novadigm.edm";
-		list["edx"] = "application/vnd.novadigm.edx";
-		list["ext"] = "application/vnd.novadigm.ext";
-		list["odc"] = "application/vnd.oasis.opendocument.chart";
-		list["otc"] = "application/vnd.oasis.opendocument.chart-template";
-		list["odb"] = "application/vnd.oasis.opendocument.database";
-		list["odf"] = "application/vnd.oasis.opendocument.formula";
-		list["odft"] = "application/vnd.oasis.opendocument.formula-template";
-		list["odg"] = "application/vnd.oasis.opendocument.graphics";
-		list["otg"] = "application/vnd.oasis.opendocument.graphics-template";
-		list["odi"] = "application/vnd.oasis.opendocument.image";
-		list["oti"] = "application/vnd.oasis.opendocument.image-template";
-		list["odp"] = "application/vnd.oasis.opendocument.presentation";
-		list["otp"] = "application/vnd.oasis.opendocument.presentation-template";
-		list["ods"] = "application/vnd.oasis.opendocument.spreadsheet";
-		list["ots"] = "application/vnd.oasis.opendocument.spreadsheet-template";
-		list["odt"] = "application/vnd.oasis.opendocument.text";
-		list["odm"] = "application/vnd.oasis.opendocument.text-master";
-		list["ott"] = "application/vnd.oasis.opendocument.text-template";
-		list["oth"] = "application/vnd.oasis.opendocument.text-web";
-		list["xo"] = "application/vnd.olpc-sugar";
-		list["dd2"] = "application/vnd.oma.dd2+xml";
-		list["oxt"] = "application/vnd.openofficeorg.extension";
-		list["pptx"] = "application/vnd.openxmlformats-officedocument.presentationml.presentation";
-		list["sldx"] = "application/vnd.openxmlformats-officedocument.presentationml.slide";
-		list["ppsx"] = "application/vnd.openxmlformats-officedocument.presentationml.slideshow";
-		list["potx"] = "application/vnd.openxmlformats-officedocument.presentationml.template";
-		list["xlsx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-		list["xltx"] = "application/vnd.openxmlformats-officedocument.spreadsheetml.template";
-		list["docx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.document";
-		list["dotx"] = "application/vnd.openxmlformats-officedocument.wordprocessingml.template";
-		list["mgp"] = "application/vnd.osgeo.mapguide.package";
-		list["dp"] = "application/vnd.osgi.dp";
-		list["esa"] = "application/vnd.osgi.subsystem";
-		list["pdb"] = "application/vnd.palm";
-		list["pqa"] = "application/vnd.palm";
-		list["oprc"] = "application/vnd.palm";
-		list["paw"] = "application/vnd.pawaafile";
-		list["str"] = "application/vnd.pg.format";
-		list["ei6"] = "application/vnd.pg.osasli";
-		list["efif"] = "application/vnd.picsel";
-		list["wg"] = "application/vnd.pmi.widget";
-		list["plf"] = "application/vnd.pocketlearn";
-		list["pbd"] = "application/vnd.powerbuilder6";
-		list["box"] = "application/vnd.previewsystems.box";
-		list["mgz"] = "application/vnd.proteus.magazine";
-		list["qps"] = "application/vnd.publishare-delta-tree";
-		list["ptid"] = "application/vnd.pvi.ptid1";
-		list["qxd"] = "application/vnd.quark.quarkxpress";
-		list["qxt"] = "application/vnd.quark.quarkxpress";
-		list["qwd"] = "application/vnd.quark.quarkxpress";
-		list["qwt"] = "application/vnd.quark.quarkxpress";
-		list["qxl"] = "application/vnd.quark.quarkxpress";
-		list["qxb"] = "application/vnd.quark.quarkxpress";
-		list["bed"] = "application/vnd.realvnc.bed";
-		list["mxl"] = "application/vnd.recordare.musicxml";
-		list["musicxml"] = "application/vnd.recordare.musicxml+xml";
-		list["cryptonote"] = "application/vnd.rig.cryptonote";
-		list["cod"] = "application/vnd.rim.cod";
-		list["rm"] = "application/vnd.rn-realmedia";
-		list["rmvb"] = "application/vnd.rn-realmedia-vbr";
-		list["link66"] = "application/vnd.route66.link66+xml";
-		list["st"] = "application/vnd.sailingtracker.track";
-		list["see"] = "application/vnd.seemail";
-		list["sema"] = "application/vnd.sema";
-		list["semd"] = "application/vnd.semd";
-		list["semf"] = "application/vnd.semf";
-		list["ifm"] = "application/vnd.shana.informed.formdata";
-		list["itp"] = "application/vnd.shana.informed.formtemplate";
-		list["iif"] = "application/vnd.shana.informed.interchange";
-		list["ipk"] = "application/vnd.shana.informed.package";
-		list["twd"] = "application/vnd.simtech-mindmapper";
-		list["twds"] = "application/vnd.simtech-mindmapper";
-		list["mmf"] = "application/vnd.smaf";
-		list["teacher"] = "application/vnd.smart.teacher";
-		list["sdkm"] = "application/vnd.solent.sdkm+xml";
-		list["sdkd"] = "application/vnd.solent.sdkm+xml";
-		list["dxp"] = "application/vnd.spotfire.dxp";
-		list["sfs"] = "application/vnd.spotfire.sfs";
-		list["sdc"] = "application/vnd.stardivision.calc";
-		list["sda"] = "application/vnd.stardivision.draw";
-		list["sdd"] = "application/vnd.stardivision.impress";
-		list["smf"] = "application/vnd.stardivision.math";
-		list["sdw"] = "application/vnd.stardivision.writer";
-		list["vor"] = "application/vnd.stardivision.writer";
-		list["sgl"] = "application/vnd.stardivision.writer-global";
-		list["smzip"] = "application/vnd.stepmania.package";
-		list["sm"] = "application/vnd.stepmania.stepchart";
-		list["sxc"] = "application/vnd.sun.xml.calc";
-		list["stc"] = "application/vnd.sun.xml.calc.template";
-		list["sxd"] = "application/vnd.sun.xml.draw";
-		list["std"] = "application/vnd.sun.xml.draw.template";
-		list["sxi"] = "application/vnd.sun.xml.impress";
-		list["sti"] = "application/vnd.sun.xml.impress.template";
-		list["sxm"] = "application/vnd.sun.xml.math";
-		list["sxw"] = "application/vnd.sun.xml.writer";
-		list["sxg"] = "application/vnd.sun.xml.writer.global";
-		list["stw"] = "application/vnd.sun.xml.writer.template";
-		list["sus"] = "application/vnd.sus-calendar";
-		list["susp"] = "application/vnd.sus-calendar";
-		list["svd"] = "application/vnd.svd";
-		list["sis"] = "application/vnd.symbian.install";
-		list["sisx"] = "application/vnd.symbian.install";
-		list["xsm"] = "application/vnd.syncml+xml";
-		list["bdm"] = "application/vnd.syncml.dm+wbxml";
-		list["xdm"] = "application/vnd.syncml.dm+xml";
-		list["tao"] = "application/vnd.tao.intent-module-archive";
-		list["pcap"] = "application/vnd.tcpdump.pcap";
-		list["cap"] = "application/vnd.tcpdump.pcap";
-		list["dmp"] = "application/vnd.tcpdump.pcap";
-		list["tmo"] = "application/vnd.tmobile-livetv";
-		list["tpt"] = "application/vnd.trid.tpt";
-		list["mxs"] = "application/vnd.triscape.mxs";
-		list["tra"] = "application/vnd.trueapp";
-		list["ufd"] = "application/vnd.ufdl";
-		list["ufdl"] = "application/vnd.ufdl";
-		list["utz"] = "application/vnd.uiq.theme";
-		list["umj"] = "application/vnd.umajin";
-		list["unityweb"] = "application/vnd.unity";
-		list["uoml"] = "application/vnd.uoml+xml";
-		list["vcx"] = "application/vnd.vcx";
-		list["vsd"] = "application/vnd.visio";
-		list["vst"] = "application/vnd.visio";
-		list["vss"] = "application/vnd.visio";
-		list["vsw"] = "application/vnd.visio";
-		list["vis"] = "application/vnd.visionary";
-		list["vsf"] = "application/vnd.vsf";
-		list["wbxml"] = "application/vnd.wap.wbxml";
-		list["wmlc"] = "application/vnd.wap.wmlc";
-		list["wmlsc"] = "application/vnd.wap.wmlscriptc";
-		list["wtb"] = "application/vnd.webturbo";
-		list["nbp"] = "application/vnd.wolfram.player";
-		list["wpd"] = "application/vnd.wordperfect";
-		list["wqd"] = "application/vnd.wqd";
-		list["stf"] = "application/vnd.wt.stf";
-		list["xar"] = "application/vnd.xara";
-		list["xfdl"] = "application/vnd.xfdl";
-		list["hvd"] = "application/vnd.yamaha.hv-dic";
-		list["hvs"] = "application/vnd.yamaha.hv-script";
-		list["hvp"] = "application/vnd.yamaha.hv-voice";
-		list["osf"] = "application/vnd.yamaha.openscoreformat";
-		list["osfpvg"] = "application/vnd.yamaha.openscoreformat.osfpvg+xml";
-		list["saf"] = "application/vnd.yamaha.smaf-audio";
-		list["spf"] = "application/vnd.yamaha.smaf-phrase";
-		list["cmp"] = "application/vnd.yellowriver-custom-menu";
-		list["zir"] = "application/vnd.zul";
-		list["zirz"] = "application/vnd.zul";
-		list["zaz"] = "application/vnd.zzazz.deck+xml";
-		list["vxml"] = "application/voicexml+xml";
-		list["wgt"] = "application/widget";
-		list["hlp"] = "application/winhlp";
-		list["wsdl"] = "application/wsdl+xml";
-		list["wspolicy"] = "application/wspolicy+xml";
-		list["7z"] = "application/x-7z-compressed";
-		list["abw"] = "application/x-abiword";
-		list["ace"] = "application/x-ace-compressed";
-		list["dmg"] = "application/x-apple-diskimage";
-		list["aab"] = "application/x-authorware-bin";
-		list["x32"] = "application/x-authorware-bin";
-		list["u32"] = "application/x-authorware-bin";
-		list["vox"] = "application/x-authorware-bin";
-		list["aam"] = "application/x-authorware-map";
-		list["aas"] = "application/x-authorware-seg";
-		list["bcpio"] = "application/x-bcpio";
-		list["torrent"] = "application/x-bittorrent";
-		list["blb"] = "application/x-blorb";
-		list["blorb"] = "application/x-blorb";
-		list["bz"] = "application/x-bzip";
-		list["bz2"] = "application/x-bzip2";
-		list["boz"] = "application/x-bzip2";
-		list["cbr"] = "application/x-cbr";
-		list["cba"] = "application/x-cbr";
-		list["cbt"] = "application/x-cbr";
-		list["cbz"] = "application/x-cbr";
-		list["cb7"] = "application/x-cbr";
-		list["vcd"] = "application/x-cdlink";
-		list["cfs"] = "application/x-cfs-compressed";
-		list["chat"] = "application/x-chat";
-		list["pgn"] = "application/x-chess-pgn";
-		list["nsc"] = "application/x-conference";
-		list["cpio"] = "application/x-cpio";
-		list["csh"] = "application/x-csh";
-		list["deb"] = "application/x-debian-package";
-		list["udeb"] = "application/x-debian-package";
-		list["dgc"] = "application/x-dgc-compressed";
-		list["dir"] = "application/x-director";
-		list["dcr"] = "application/x-director";
-		list["dxr"] = "application/x-director";
-		list["cst"] = "application/x-director";
-		list["cct"] = "application/x-director";
-		list["cxt"] = "application/x-director";
-		list["w3d"] = "application/x-director";
-		list["fgd"] = "application/x-director";
-		list["swa"] = "application/x-director";
-		list["wad"] = "application/x-doom";
-		list["ncx"] = "application/x-dtbncx+xml";
-		list["dtb"] = "application/x-dtbook+xml";
-		list["res"] = "application/x-dtbresource+xml";
-		list["dvi"] = "application/x-dvi";
-		list["evy"] = "application/x-envoy";
-		list["eva"] = "application/x-eva";
-		list["bdf"] = "application/x-font-bdf";
-		list["gsf"] = "application/x-font-ghostscript";
-		list["psf"] = "application/x-font-linux-psf";
-		list["pcf"] = "application/x-font-pcf";
-		list["snf"] = "application/x-font-snf";
-		list["pfa"] = "application/x-font-type1";
-		list["pfb"] = "application/x-font-type1";
-		list["pfm"] = "application/x-font-type1";
-		list["afm"] = "application/x-font-type1";
-		list["arc"] = "application/x-freearc";
-		list["spl"] = "application/x-futuresplash";
-		list["gca"] = "application/x-gca-compressed";
-		list["ulx"] = "application/x-glulx";
-		list["gnumeric"] = "application/x-gnumeric";
-		list["gramps"] = "application/x-gramps-xml";
-		list["gtar"] = "application/x-gtar";
-		list["hdf"] = "application/x-hdf";
-		list["install"] = "application/x-install-instructions";
-		list["iso"] = "application/x-iso9660-image";
-		list["jnlp"] = "application/x-java-jnlp-file";
-		list["latex"] = "application/x-latex";
-		list["lzh"] = "application/x-lzh-compressed";
-		list["lha"] = "application/x-lzh-compressed";
-		list["mie"] = "application/x-mie";
-		list["prc"] = "application/x-mobipocket-ebook";
-		list["mobi"] = "application/x-mobipocket-ebook";
-		list["application"] = "application/x-ms-application";
-		list["lnk"] = "application/x-ms-shortcut";
-		list["wmd"] = "application/x-ms-wmd";
-		list["wmz"] = "application/x-msmetafile";
-		list["xbap"] = "application/x-ms-xbap";
-		list["mdb"] = "application/x-msaccess";
-		list["obd"] = "application/x-msbinder";
-		list["crd"] = "application/x-mscardfile";
-		list["clp"] = "application/x-msclip";
-		list["exe"] = "application/x-msdownload";
-		list["dll"] = "application/x-msdownload";
-		list["com"] = "application/x-msdownload";
-		list["bat"] = "application/x-msdownload";
-		list["msi"] = "application/x-msdownload";
-		list["mvb"] = "application/x-msmediaview";
-		list["m13"] = "application/x-msmediaview";
-		list["m14"] = "application/x-msmediaview";
-		list["wmf"] = "application/x-msmetafile";
-		list["emf"] = "application/x-msmetafile";
-		list["emz"] = "application/x-msmetafile";
-		list["mny"] = "application/x-msmoney";
-		list["pub"] = "application/x-mspublisher";
-		list["scd"] = "application/x-msschedule";
-		list["trm"] = "application/x-msterminal";
-		list["wri"] = "application/x-mswrite";
-		list["nc"] = "application/x-netcdf";
-		list["cdf"] = "application/x-netcdf";
-		list["nzb"] = "application/x-nzb";
-		list["p12"] = "application/x-pkcs12";
-		list["pfx"] = "application/x-pkcs12";
-		list["p7b"] = "application/x-pkcs7-certificates";
-		list["spc"] = "application/x-pkcs7-certificates";
-		list["p7r"] = "application/x-pkcs7-certreqresp";
-		list["rar"] = "application/x-rar-compressed";
-		list["ris"] = "application/x-research-info-systems";
-		list["sh"] = "application/x-sh";
-		list["shar"] = "application/x-shar";
-		list["swf"] = "application/x-shockwave-flash";
-		list["xap"] = "application/x-silverlight-app";
-		list["sql"] = "application/x-sql";
-		list["sit"] = "application/x-stuffit";
-		list["sitx"] = "application/x-stuffitx";
-		list["srt"] = "application/x-subrip";
-		list["sv4cpio"] = "application/x-sv4cpio";
-		list["sv4crc"] = "application/x-sv4crc";
-		list["t3"] = "application/x-t3vm-image";
-		list["gam"] = "application/x-tads";
-		list["tar"] = "application/x-tar";
-		list["tcl"] = "application/x-tcl";
-		list["tex"] = "application/x-tex";
-		list["tfm"] = "application/x-tex-tfm";
-		list["texinfo"] = "application/x-texinfo";
-		list["texi"] = "application/x-texinfo";
-		list["obj"] = "application/x-tgif";
-		list["ustar"] = "application/x-ustar";
-		list["src"] = "application/x-wais-source";
-		list["der"] = "application/x-x509-ca-cert";
-		list["crt"] = "application/x-x509-ca-cert";
-		list["fig"] = "application/x-xfig";
-		list["xlf"] = "application/x-xliff+xml";
-		list["xpi"] = "application/x-xpinstall";
-		list["xz"] = "application/x-xz";
-		list["z1"] = "application/x-zmachine";
-		list["z2"] = "application/x-zmachine";
-		list["z3"] = "application/x-zmachine";
-		list["z4"] = "application/x-zmachine";
-		list["z5"] = "application/x-zmachine";
-		list["z6"] = "application/x-zmachine";
-		list["z7"] = "application/x-zmachine";
-		list["z8"] = "application/x-zmachine";
-		list["xaml"] = "application/xaml+xml";
-		list["xdf"] = "application/xcap-diff+xml";
-		list["xenc"] = "application/xenc+xml";
-		list["xhtml"] = "application/xhtml+xml";
-		list["xht"] = "application/xhtml+xml";
-		list["xml"] = "application/xml";
-		list["xsl"] = "application/xml";
-		list["dtd"] = "application/xml-dtd";
-		list["xop"] = "application/xop+xml";
-		list["xpl"] = "application/xproc+xml";
-		list["xslt"] = "application/xslt+xml";
-		list["xspf"] = "application/xspf+xml";
-		list["mxml"] = "application/xv+xml";
-		list["xhvml"] = "application/xv+xml";
-		list["xvml"] = "application/xv+xml";
-		list["xvm"] = "application/xv+xml";
-		list["yang"] = "application/yang";
-		list["yin"] = "application/yin+xml";
-		list["zip"] = "application/zip";
-		list["adp"] = "audio/adpcm";
-		list["au"] = "audio/basic";
-		list["snd"] = "audio/basic";
-		list["mid"] = "audio/midi";
-		list["midi"] = "audio/midi";
-		list["kar"] = "audio/midi";
-		list["rmi"] = "audio/midi";
-		list["m4a"] = "audio/mp4";
-		list["mp4a"] = "audio/mp4";
-		list["mpga"] = "audio/mpeg";
-		list["mp2"] = "audio/mpeg";
-		list["mp2a"] = "audio/mpeg";
-		list["mp3"] = "audio/mpeg";
-		list["m2a"] = "audio/mpeg";
-		list["m3a"] = "audio/mpeg";
-		list["oga"] = "audio/ogg";
-		list["ogg"] = "audio/ogg";
-		list["spx"] = "audio/ogg";
-		list["opus"] = "audio/ogg";
-		list["s3m"] = "audio/s3m";
-		list["sil"] = "audio/silk";
-		list["uva"] = "audio/vnd.dece.audio";
-		list["uvva"] = "audio/vnd.dece.audio";
-		list["eol"] = "audio/vnd.digital-winds";
-		list["dra"] = "audio/vnd.dra";
-		list["dts"] = "audio/vnd.dts";
-		list["dtshd"] = "audio/vnd.dts.hd";
-		list["lvp"] = "audio/vnd.lucent.voice";
-		list["pya"] = "audio/vnd.ms-playready.media.pya";
-		list["ecelp4800"] = "audio/vnd.nuera.ecelp4800";
-		list["ecelp7470"] = "audio/vnd.nuera.ecelp7470";
-		list["ecelp9600"] = "audio/vnd.nuera.ecelp9600";
-		list["rip"] = "audio/vnd.rip";
-		list["weba"] = "audio/webm";
-		list["aac"] = "audio/x-aac";
-		list["aif"] = "audio/x-aiff";
-		list["aiff"] = "audio/x-aiff";
-		list["aifc"] = "audio/x-aiff";
-		list["caf"] = "audio/x-caf";
-		list["flac"] = "audio/x-flac";
-		list["mka"] = "audio/x-matroska";
-		list["m3u"] = "audio/x-mpegurl";
-		list["wax"] = "audio/x-ms-wax";
-		list["wma"] = "audio/x-ms-wma";
-		list["ram"] = "audio/x-pn-realaudio";
-		list["ra"] = "audio/x-pn-realaudio";
-		list["rmp"] = "audio/x-pn-realaudio-plugin";
-		list["wav"] = "audio/x-wav";
-		list["xm"] = "audio/xm";
-		list["cdx"] = "chemical/x-cdx";
-		list["cif"] = "chemical/x-cif";
-		list["cmdf"] = "chemical/x-cmdf";
-		list["cml"] = "chemical/x-cml";
-		list["csml"] = "chemical/x-csml";
-		list["xyz"] = "chemical/x-xyz";
-		list["ttc"] = "font/collection";
-		list["otf"] = "font/otf";
-		list["ttf"] = "font/ttf";
-		list["woff"] = "font/woff";
-		list["woff2"] = "font/woff2";
-		list["bmp"] = "image/bmp";
-		list["cgm"] = "image/cgm";
-		list["g3"] = "image/g3fax";
-		list["gif"] = "image/gif";
-		list["ief"] = "image/ief";
-		list["jpeg"] = "image/jpeg";
-		list["jpg"] = "image/jpeg";
-		list["jpe"] = "image/jpeg";
-		list["ktx"] = "image/ktx";
-		list["png"] = "image/png";
-		list["btif"] = "image/prs.btif";
-		list["sgi"] = "image/sgi";
-		list["svg"] = "image/svg+xml";
-		list["svgz"] = "image/svg+xml";
-		list["tiff"] = "image/tiff";
-		list["tif"] = "image/tiff";
-		list["psd"] = "image/vnd.adobe.photoshop";
-		list["uvi"] = "image/vnd.dece.graphic";
-		list["uvvi"] = "image/vnd.dece.graphic";
-		list["uvg"] = "image/vnd.dece.graphic";
-		list["uvvg"] = "image/vnd.dece.graphic";
-		list["djvu"] = "image/vnd.djvu";
-		list["djv"] = "image/vnd.djvu";
-		list["sub"] = "text/vnd.dvb.subtitle";
-		list["dwg"] = "image/vnd.dwg";
-		list["dxf"] = "image/vnd.dxf";
-		list["fbs"] = "image/vnd.fastbidsheet";
-		list["fpx"] = "image/vnd.fpx";
-		list["fst"] = "image/vnd.fst";
-		list["mmr"] = "image/vnd.fujixerox.edmics-mmr";
-		list["rlc"] = "image/vnd.fujixerox.edmics-rlc";
-		list["mdi"] = "image/vnd.ms-modi";
-		list["wdp"] = "image/vnd.ms-photo";
-		list["npx"] = "image/vnd.net-fpx";
-		list["wbmp"] = "image/vnd.wap.wbmp";
-		list["xif"] = "image/vnd.xiff";
-		list["webp"] = "image/webp";
-		list["3ds"] = "image/x-3ds";
-		list["ras"] = "image/x-cmu-raster";
-		list["cmx"] = "image/x-cmx";
-		list["fh"] = "image/x-freehand";
-		list["fhc"] = "image/x-freehand";
-		list["fh4"] = "image/x-freehand";
-		list["fh5"] = "image/x-freehand";
-		list["fh7"] = "image/x-freehand";
-		list["ico"] = "image/x-icon";
-		list["sid"] = "image/x-mrsid-image";
-		list["pcx"] = "image/x-pcx";
-		list["pic"] = "image/x-pict";
-		list["pct"] = "image/x-pict";
-		list["pnm"] = "image/x-portable-anymap";
-		list["pbm"] = "image/x-portable-bitmap";
-		list["pgm"] = "image/x-portable-graymap";
-		list["ppm"] = "image/x-portable-pixmap";
-		list["rgb"] = "image/x-rgb";
-		list["tga"] = "image/x-tga";
-		list["xbm"] = "image/x-xbitmap";
-		list["xpm"] = "image/x-xpixmap";
-		list["xwd"] = "image/x-xwindowdump";
-		list["eml"] = "message/rfc822";
-		list["mime"] = "message/rfc822";
-		list["igs"] = "model/iges";
-		list["iges"] = "model/iges";
-		list["msh"] = "model/mesh";
-		list["mesh"] = "model/mesh";
-		list["silo"] = "model/mesh";
-		list["dae"] = "model/vnd.collada+xml";
-		list["dwf"] = "model/vnd.dwf";
-		list["gdl"] = "model/vnd.gdl";
-		list["gtw"] = "model/vnd.gtw";
-		list["mts"] = "model/vnd.mts";
-		list["vtu"] = "model/vnd.vtu";
-		list["wrl"] = "model/vrml";
-		list["vrml"] = "model/vrml";
-		list["x3db"] = "model/x3d+binary";
-		list["x3dbz"] = "model/x3d+binary";
-		list["x3dv"] = "model/x3d+vrml";
-		list["x3dvz"] = "model/x3d+vrml";
-		list["x3d"] = "model/x3d+xml";
-		list["x3dz"] = "model/x3d+xml";
-		list["appcache"] = "text/cache-manifest";
-		list["ics"] = "text/calendar";
-		list["ifb"] = "text/calendar";
-		list["css"] = "text/css";
-		list["csv"] = "text/csv";
-		list["html"] = "text/html";
-		list["htm"] = "text/html";
-		list["n3"] = "text/n3";
-		list["txt"] = "text/plain";
-		list["text"] = "text/plain";
-		list["conf"] = "text/plain";
-		list["def"] = "text/plain";
-		list["list"] = "text/plain";
-		list["log"] = "text/plain";
-		list["in"] = "text/plain";
-		list["dsc"] = "text/prs.lines.tag";
-		list["rtx"] = "text/richtext";
-		list["sgml"] = "text/sgml";
-		list["sgm"] = "text/sgml";
-		list["tsv"] = "text/tab-separated-values";
-		list["t"] = "text/troff";
-		list["tr"] = "text/troff";
-		list["roff"] = "text/troff";
-		list["man"] = "text/troff";
-		list["me"] = "text/troff";
-		list["ms"] = "text/troff";
-		list["ttl"] = "text/turtle";
-		list["uri"] = "text/uri-list";
-		list["uris"] = "text/uri-list";
-		list["urls"] = "text/uri-list";
-		list["vcard"] = "text/vcard";
-		list["curl"] = "text/vnd.curl";
-		list["dcurl"] = "text/vnd.curl.dcurl";
-		list["mcurl"] = "text/vnd.curl.mcurl";
-		list["scurl"] = "text/vnd.curl.scurl";
-		list["fly"] = "text/vnd.fly";
-		list["flx"] = "text/vnd.fmi.flexstor";
-		list["gv"] = "text/vnd.graphviz";
-		list["3dml"] = "text/vnd.in3d.3dml";
-		list["spot"] = "text/vnd.in3d.spot";
-		list["jad"] = "text/vnd.sun.j2me.app-descriptor";
-		list["wml"] = "text/vnd.wap.wml";
-		list["wmls"] = "text/vnd.wap.wmlscript";
-		list["s"] = "text/x-asm";
-		list["asm"] = "text/x-asm";
-		list["c"] = "text/x-c";
-		list["cc"] = "text/x-c";
-		list["cxx"] = "text/x-c";
-		list["cpp"] = "text/x-c";
-		list["h"] = "text/x-c";
-		list["hh"] = "text/x-c";
-		list["dic"] = "text/x-c";
-		list["f"] = "text/x-fortran";
-		list["for"] = "text/x-fortran";
-		list["f77"] = "text/x-fortran";
-		list["f90"] = "text/x-fortran";
-		list["java"] = "text/x-java-source";
-		list["nfo"] = "text/x-nfo";
-		list["opml"] = "text/x-opml";
-		list["p"] = "text/x-pascal";
-		list["pas"] = "text/x-pascal";
-		list["etx"] = "text/x-setext";
-		list["sfv"] = "text/x-sfv";
-		list["uu"] = "text/x-uuencode";
-		list["vcs"] = "text/x-vcalendar";
-		list["vcf"] = "text/x-vcard";
-		list["3gp"] = "video/3gpp";
-		list["3g2"] = "video/3gpp2";
-		list["h261"] = "video/h261";
-		list["h263"] = "video/h263";
-		list["h264"] = "video/h264";
-		list["jpgv"] = "video/jpeg";
-		list["jpm"] = "video/jpm";
-		list["jpgm"] = "video/jpm";
-		list["mj2"] = "video/mj2";
-		list["mjp2"] = "video/mj2";
-		list["mp4"] = "video/mp4";
-		list["mp4v"] = "video/mp4";
-		list["mpg4"] = "video/mp4";
-		list["mpeg"] = "video/mpeg";
-		list["mpg"] = "video/mpeg";
-		list["mpe"] = "video/mpeg";
-		list["m1v"] = "video/mpeg";
-		list["m2v"] = "video/mpeg";
-		list["ogv"] = "video/ogg";
-		list["qt"] = "video/quicktime";
-		list["mov"] = "video/quicktime";
-		list["uvh"] = "video/vnd.dece.hd";
-		list["uvvh"] = "video/vnd.dece.hd";
-		list["uvm"] = "video/vnd.dece.mobile";
-		list["uvvm"] = "video/vnd.dece.mobile";
-		list["uvp"] = "video/vnd.dece.pd";
-		list["uvvp"] = "video/vnd.dece.pd";
-		list["uvs"] = "video/vnd.dece.sd";
-		list["uvvs"] = "video/vnd.dece.sd";
-		list["uvv"] = "video/vnd.dece.video";
-		list["uvvv"] = "video/vnd.dece.video";
-		list["dvb"] = "video/vnd.dvb.file";
-		list["fvt"] = "video/vnd.fvt";
-		list["mxu"] = "video/vnd.mpegurl";
-		list["m4u"] = "video/vnd.mpegurl";
-		list["pyv"] = "video/vnd.ms-playready.media.pyv";
-		list["uvu"] = "video/vnd.uvvu.mp4";
-		list["uvvu"] = "video/vnd.uvvu.mp4";
-		list["viv"] = "video/vnd.vivo";
-		list["webm"] = "video/webm";
-		list["f4v"] = "video/x-f4v";
-		list["fli"] = "video/x-fli";
-		list["flv"] = "video/x-flv";
-		list["m4v"] = "video/x-m4v";
-		list["mkv"] = "video/x-matroska";
-		list["mk3d"] = "video/x-matroska";
-		list["mks"] = "video/x-matroska";
-		list["mng"] = "video/x-mng";
-		list["asf"] = "video/x-ms-asf";
-		list["asx"] = "video/x-ms-asf";
-		list["vob"] = "video/x-ms-vob";
-		list["wm"] = "video/x-ms-wm";
-		list["wmv"] = "video/x-ms-wmv";
-		list["wmx"] = "video/x-ms-wmx";
-		list["wvx"] = "video/x-ms-wvx";
-		list["avi"] = "video/x-msvideo";
-		list["movie"] = "video/x-sgi-movie";
-		list["smv"] = "video/x-smv";
-		list["ice"] = "x-conference/x-cooltalk";
-	};/**/
+	MimeType() = default;
+	
+	std::string_view get_mime_from_resource(std::string_view resource){
 		
-	std::string get_mime_from_resource(std::string resource){
+		for (const std::array<std::string_view, 2>& item : list){
 
-		auto file_type_pos = resource.find(".") ;
-		if(file_type_pos != std::string::npos){
-			std::string file_type = resource.substr(file_type_pos+1);
-			auto it = list.find(file_type);
-			if (it != list.end()){
-				return list[file_type];
+			if(item[0] == resource){
+				return item[1];
 			}
 		}
 
 		return "";
 	};
+	
+	private:
 
+		std::array<std::array<std::string_view, 2>, 984>  list {{
+			{"ez", "application/andrew-inset"},
+			{"aw", "application/applixware"},
+			{"atom", "application/atom+xml"},
+			{"atomcat", "application/atomcat+xml"},
+			{"atomsvc", "application/atomsvc+xml"},
+			{"ccxml", "application/ccxml+xml"},
+			{"cdmia", "application/cdmi-capability"},
+			{"cdmic", "application/cdmi-container"},
+			{"cdmid", "application/cdmi-domain"},
+			{"cdmio", "application/cdmi-object"},
+			{"cdmiq", "application/cdmi-queue"},
+			{"cu", "application/cu-seeme"},
+			{"davmount", "application/davmount+xml"},
+			{"dbk", "application/docbook+xml"},
+			{"dssc", "application/dssc+der"},
+			{"xdssc", "application/dssc+xml"},
+			{"ecma", "application/ecmascript"},
+			{"emma", "application/emma+xml"},
+			{"epub", "application/epub+zip"},
+			{"exi", "application/exi"},
+			{"pfr", "application/font-tdpfr"},
+			{"gml", "application/gml+xml"},
+			{"gpx", "application/gpx+xml"},
+			{"gxf", "application/gxf"},
+			{"stk", "application/hyperstudio"},
+			{"ink", "application/inkml+xml"},
+			{"inkml", "application/inkml+xml"},
+			{"ipfix", "application/ipfix"},
+			{"jar", "application/java-archive"},
+			{"ser", "application/java-serialized-object"},
+			{"class", "application/java-vm"},
+			{"js", "application/javascript"},
+			{"json", "application/json"},
+			{"jsonml", "application/jsonml+json"},
+			{"lostxml", "application/lost+xml"},
+			{"hqx", "application/mac-binhex40"},
+			{"cpt", "application/mac-compactpro"},
+			{"mads", "application/mads+xml"},
+			{"mrc", "application/marc"},
+			{"mrcx", "application/marcxml+xml"},
+			{"ma", "application/mathematica"},
+			{"nb", "application/mathematica"},
+			{"mb", "application/mathematica"},
+			{"mathml", "application/mathml+xml"},
+			{"mbox", "application/mbox"},
+			{"mscml", "application/mediaservercontrol+xml"},
+			{"metalink", "application/metalink+xml"},
+			{"meta4", "application/metalink4+xml"},
+			{"mets", "application/mets+xml"},
+			{"mods", "application/mods+xml"},
+			{"m21", "application/mp21"},
+			{"mp21", "application/mp21"},
+			{"mp4s", "application/mp4"},
+			{"doc", "application/msword"},
+			{"dot", "application/msword"},
+			{"mxf", "application/mxf"},
+			{"bin", "application/octet-stream"},
+			{"dms", "application/octet-stream"},
+			{"lrf", "application/octet-stream"},
+			{"mar", "application/octet-stream"},
+			{"so", "application/octet-stream"},
+			{"dist", "application/octet-stream"},
+			{"distz", "application/octet-stream"},
+			{"pkg", "application/octet-stream"},
+			{"bpk", "application/octet-stream"},
+			{"dump", "application/octet-stream"},
+			{"elc", "application/octet-stream"},
+			{"deploy", "application/octet-stream"},
+			{"oda", "application/oda"},
+			{"opf", "application/oebps-package+xml"},
+			{"ogx", "application/ogg"},
+			{"omdoc", "application/omdoc+xml"},
+			{"onetoc", "application/onenote"},
+			{"onetoc2", "application/onenote"},
+			{"onetmp", "application/onenote"},
+			{"onepkg", "application/onenote"},
+			{"oxps", "application/oxps"},
+			{"xer", "application/patch-ops-error+xml"},
+			{"pdf", "application/pdf"},
+			{"pgp", "application/pgp-encrypted"},
+			{"asc", "application/pgp-signature"},
+			{"sig", "application/pgp-signature"},
+			{"prf", "application/pics-rules"},
+			{"p10", "application/pkcs10"},
+			{"p7m", "application/pkcs7-mime"},
+			{"p7c", "application/pkcs7-mime"},
+			{"p7s", "application/pkcs7-signature"},
+			{"p8", "application/pkcs8"},
+			{"ac", "application/pkix-attr-cert"},
+			{"cer", "application/pkix-cert"},
+			{"crl", "application/pkix-crl"},
+			{"pkipath", "application/pkix-pkipath"},
+			{"pki", "application/pkixcmp"},
+			{"pls", "application/pls+xml"},
+			{"ai", "application/postscript"},
+			{"eps", "application/postscript"},
+			{"ps", "application/postscript"},
+			{"cww", "application/prs.cww"},
+			{"pskcxml", "application/pskc+xml"},
+			{"rdf", "application/rdf+xml"},
+			{"rif", "application/reginfo+xml"},
+			{"rnc", "application/relax-ng-compact-syntax"},
+			{"rl", "application/resource-lists+xml"},
+			{"rld", "application/resource-lists-diff+xml"},
+			{"rs", "application/rls-services+xml"},
+			{"gbr", "application/rpki-ghostbusters"},
+			{"mft", "application/rpki-manifest"},
+			{"roa", "application/rpki-roa"},
+			{"rsd", "application/rsd+xml"},
+			{"rss", "application/rss+xml"},
+			{"rtf", "application/rtf"},
+			{"sbml", "application/sbml+xml"},
+			{"scq", "application/scvp-cv-request"},
+			{"scs", "application/scvp-cv-response"},
+			{"spq", "application/scvp-vp-request"},
+			{"spp", "application/scvp-vp-response"},
+			{"sdp", "application/sdp"},
+			{"setpay", "application/set-payment-initiation"},
+			{"setreg", "application/set-registration-initiation"},
+			{"shf", "application/shf+xml"},
+			{"smi", "application/smil+xml"},
+			{"smil", "application/smil+xml"},
+			{"rq", "application/sparql-query"},
+			{"srx", "application/sparql-results+xml"},
+			{"gram", "application/srgs"},
+			{"grxml", "application/srgs+xml"},
+			{"sru", "application/sru+xml"},
+			{"ssdl", "application/ssdl+xml"},
+			{"ssml", "application/ssml+xml"},
+			{"tei", "application/tei+xml"},
+			{"teicorpus", "application/tei+xml"},
+			{"tfi", "application/thraud+xml"},
+			{"tsd", "application/timestamped-data"},
+			{"plb", "application/vnd.3gpp.pic-bw-large"},
+			{"psb", "application/vnd.3gpp.pic-bw-small"},
+			{"pvb", "application/vnd.3gpp.pic-bw-var"},
+			{"tcap", "application/vnd.3gpp2.tcap"},
+			{"pwn", "application/vnd.3m.post-it-notes"},
+			{"aso", "application/vnd.accpac.simply.aso"},
+			{"imp", "application/vnd.accpac.simply.imp"},
+			{"acu", "application/vnd.acucobol"},
+			{"atc", "application/vnd.acucorp"},
+			{"acutc", "application/vnd.acucorp"},
+			{"air", "application/vnd.adobe.air-application-installer-package+zip"},
+			{"fcdt", "application/vnd.adobe.formscentral.fcdt"},
+			{"fxp", "application/vnd.adobe.fxp"},
+			{"fxpl", "application/vnd.adobe.fxp"},
+			{"xdp", "application/vnd.adobe.xdp+xml"},
+			{"xfdf", "application/vnd.adobe.xfdf"},
+			{"ahead", "application/vnd.ahead.space"},
+			{"azf", "application/vnd.airzip.filesecure.azf"},
+			{"azs", "application/vnd.airzip.filesecure.azs"},
+			{"azw", "application/vnd.amazon.ebook"},
+			{"acc", "application/vnd.americandynamics.acc"},
+			{"ami", "application/vnd.amiga.ami"},
+			{"apk", "application/vnd.android.package-archive"},
+			{"cii", "application/vnd.anser-web-certificate-issue-initiation"},
+			{"fti", "application/vnd.anser-web-funds-transfer-initiation"},
+			{"atx", "application/vnd.antix.game-component"},
+			{"mpkg", "application/vnd.apple.installer+xml"},
+			{"m3u8", "application/vnd.apple.mpegurl"},
+			{"swi", "application/vnd.aristanetworks.swi"},
+			{"iota", "application/vnd.astraea-software.iota"},
+			{"aep", "application/vnd.audiograph"},
+			{"mpm", "application/vnd.blueice.multipass"},
+			{"bmi", "application/vnd.bmi"},
+			{"rep", "application/vnd.businessobjects"},
+			{"cdxml", "application/vnd.chemdraw+xml"},
+			{"mmd", "application/vnd.chipnuts.karaoke-mmd"},
+			{"cdy", "application/vnd.cinderella"},
+			{"cla", "application/vnd.claymore"},
+			{"rp9", "application/vnd.cloanto.rp9"},
+			{"c4g", "application/vnd.clonk.c4group"},
+			{"c4d", "application/vnd.clonk.c4group"},
+			{"c4f", "application/vnd.clonk.c4group"},
+			{"c4p", "application/vnd.clonk.c4group"},
+			{"c4u", "application/vnd.clonk.c4group"},
+			{"c11amc", "application/vnd.cluetrust.cartomobile-config"},
+			{"c11amz", "application/vnd.cluetrust.cartomobile-config-pkg"},
+			{"csp", "application/vnd.commonspace"},
+			{"cdbcmsg", "application/vnd.contact.cmsg"},
+			{"cmc", "application/vnd.cosmocaller"},
+			{"clkx", "application/vnd.crick.clicker"},
+			{"clkk", "application/vnd.crick.clicker.keyboard"},
+			{"clkp", "application/vnd.crick.clicker.palette"},
+			{"clkt", "application/vnd.crick.clicker.template"},
+			{"clkw", "application/vnd.crick.clicker.wordbank"},
+			{"wbs", "application/vnd.criticaltools.wbs+xml"},
+			{"pml", "application/vnd.ctc-posml"},
+			{"ppd", "application/vnd.cups-ppd"},
+			{"car", "application/vnd.curl.car"},
+			{"pcurl", "application/vnd.curl.pcurl"},
+			{"dart", "application/vnd.dart"},
+			{"rdz", "application/vnd.data-vision.rdz"},
+			{"uvf", "application/vnd.dece.data"},
+			{"uvvf", "application/vnd.dece.data"},
+			{"uvd", "application/vnd.dece.data"},
+			{"uvvd", "application/vnd.dece.data"},
+			{"uvt", "application/vnd.dece.ttml+xml"},
+			{"uvvt", "application/vnd.dece.ttml+xml"},
+			{"uvx", "application/vnd.dece.unspecified"},
+			{"uvvx", "application/vnd.dece.unspecified"},
+			{"uvz", "application/vnd.dece.zip"},
+			{"uvvz", "application/vnd.dece.zip"},
+			{"fe_launch", "application/vnd.denovo.fcselayout-link"},
+			{"dna", "application/vnd.dna"},
+			{"mlp", "application/vnd.dolby.mlp"},
+			{"dpg", "application/vnd.dpgraph"},
+			{"dfac", "application/vnd.dreamfactory"},
+			{"kpxx", "application/vnd.ds-keypoint"},
+			{"ait", "application/vnd.dvb.ait"},
+			{"svc", "application/vnd.dvb.service"},
+			{"geo", "application/vnd.dynageo"},
+			{"mag", "application/vnd.ecowin.chart"},
+			{"nml", "application/vnd.enliven"},
+			{"esf", "application/vnd.epson.esf"},
+			{"msf", "application/vnd.epson.msf"},
+			{"qam", "application/vnd.epson.quickanime"},
+			{"slt", "application/vnd.epson.salt"},
+			{"ssf", "application/vnd.epson.ssf"},
+			{"es3", "application/vnd.eszigno3+xml"},
+			{"et3", "application/vnd.eszigno3+xml"},
+			{"ez2", "application/vnd.ezpix-album"},
+			{"ez3", "application/vnd.ezpix-package"},
+			{"fdf", "application/vnd.fdf"},
+			{"mseed", "application/vnd.fdsn.mseed"},
+			{"seed", "application/vnd.fdsn.seed"},
+			{"dataless", "application/vnd.fdsn.seed"},
+			{"gph", "application/vnd.flographit"},
+			{"ftc", "application/vnd.fluxtime.clip"},
+			{"fm", "application/vnd.framemaker"},
+			{"frame", "application/vnd.framemaker"},
+			{"maker", "application/vnd.framemaker"},
+			{"book", "application/vnd.framemaker"},
+			{"fnc", "application/vnd.frogans.fnc"},
+			{"ltf", "application/vnd.frogans.ltf"},
+			{"fsc", "application/vnd.fsc.weblaunch"},
+			{"oas", "application/vnd.fujitsu.oasys"},
+			{"oa2", "application/vnd.fujitsu.oasys2"},
+			{"oa3", "application/vnd.fujitsu.oasys3"},
+			{"fg5", "application/vnd.fujitsu.oasysgp"},
+			{"bh2", "application/vnd.fujitsu.oasysprs"},
+			{"ddd", "application/vnd.fujixerox.ddd"},
+			{"xdw", "application/vnd.fujixerox.docuworks"},
+			{"xbd", "application/vnd.fujixerox.docuworks.binder"},
+			{"fzs", "application/vnd.fuzzysheet"},
+			{"txd", "application/vnd.genomatix.tuxedo"},
+			{"ggb", "application/vnd.geogebra.file"},
+			{"ggt", "application/vnd.geogebra.tool"},
+			{"gex", "application/vnd.geometry-explorer"},
+			{"gre", "application/vnd.geometry-explorer"},
+			{"gxt", "application/vnd.geonext"},
+			{"g2w", "application/vnd.geoplan"},
+			{"g3w", "application/vnd.geospace"},
+			{"gmx", "application/vnd.gmx"},
+			{"kml", "application/vnd.google-earth.kml+xml"},
+			{"kmz", "application/vnd.google-earth.kmz"},
+			{"gqf", "application/vnd.grafeq"},
+			{"gqs", "application/vnd.grafeq"},
+			{"gac", "application/vnd.groove-account"},
+			{"ghf", "application/vnd.groove-help"},
+			{"gim", "application/vnd.groove-identity-message"},
+			{"grv", "application/vnd.groove-injector"},
+			{"gtm", "application/vnd.groove-tool-message"},
+			{"tpl", "application/vnd.groove-tool-template"},
+			{"vcg", "application/vnd.groove-vcard"},
+			{"hal", "application/vnd.hal+xml"},
+			{"zmm", "application/vnd.handheld-entertainment+xml"},
+			{"hbci", "application/vnd.hbci"},
+			{"les", "application/vnd.hhe.lesson-player"},
+			{"hpgl", "application/vnd.hp-hpgl"},
+			{"hpid", "application/vnd.hp-hpid"},
+			{"hps", "application/vnd.hp-hps"},
+			{"jlt", "application/vnd.hp-jlyt"},
+			{"pcl", "application/vnd.hp-pcl"},
+			{"pclxl", "application/vnd.hp-pclxl"},
+			{"sfd-hdstx", "application/vnd.hydrostatix.sof-data"},
+			{"mpy", "application/vnd.ibm.minipay"},
+			{"afp", "application/vnd.ibm.modcap"},
+			{"listafp", "application/vnd.ibm.modcap"},
+			{"list3820", "application/vnd.ibm.modcap"},
+			{"irm", "application/vnd.ibm.rights-management"},
+			{"sc", "application/vnd.ibm.secure-container"},
+			{"icc", "application/vnd.iccprofile"},
+			{"icm", "application/vnd.iccprofile"},
+			{"igl", "application/vnd.igloader"},
+			{"ivp", "application/vnd.immervision-ivp"},
+			{"ivu", "application/vnd.immervision-ivu"},
+			{"igm", "application/vnd.insors.igm"},
+			{"xpw", "application/vnd.intercon.formnet"},
+			{"xpx", "application/vnd.intercon.formnet"},
+			{"i2g", "application/vnd.intergeo"},
+			{"qbo", "application/vnd.intu.qbo"},
+			{"qfx", "application/vnd.intu.qfx"},
+			{"rcprofile", "application/vnd.ipunplugged.rcprofile"},
+			{"irp", "application/vnd.irepository.package+xml"},
+			{"xpr", "application/vnd.is-xpr"},
+			{"fcs", "application/vnd.isac.fcs"},
+			{"jam", "application/vnd.jam"},
+			{"rms", "application/vnd.jcp.javame.midlet-rms"},
+			{"jisp", "application/vnd.jisp"},
+			{"joda", "application/vnd.joost.joda-archive"},
+			{"ktz", "application/vnd.kahootz"},
+			{"ktr", "application/vnd.kahootz"},
+			{"karbon", "application/vnd.kde.karbon"},
+			{"chrt", "application/vnd.kde.kchart"},
+			{"kfo", "application/vnd.kde.kformula"},
+			{"flw", "application/vnd.kde.kivio"},
+			{"kon", "application/vnd.kde.kontour"},
+			{"kpr", "application/vnd.kde.kpresenter"},
+			{"kpt", "application/vnd.kde.kpresenter"},
+			{"ksp", "application/vnd.kde.kspread"},
+			{"kwd", "application/vnd.kde.kword"},
+			{"kwt", "application/vnd.kde.kword"},
+			{"htke", "application/vnd.kenameaapp"},
+			{"kia", "application/vnd.kidspiration"},
+			{"kne", "application/vnd.kinar"},
+			{"knp", "application/vnd.kinar"},
+			{"skp", "application/vnd.koan"},
+			{"skd", "application/vnd.koan"},
+			{"skt", "application/vnd.koan"},
+			{"skm", "application/vnd.koan"},
+			{"sse", "application/vnd.kodak-descriptor"},
+			{"lasxml", "application/vnd.las.las+xml"},
+			{"lbd", "application/vnd.llamagraphics.life-balance.desktop"},
+			{"lbe", "application/vnd.llamagraphics.life-balance.exchange+xml"},
+			{"123", "application/vnd.lotus-1-2-3"},
+			{"apr", "application/vnd.lotus-approach"},
+			{"pre", "application/vnd.lotus-freelance"},
+			{"nsf", "application/vnd.lotus-notes"},
+			{"org", "application/vnd.lotus-organizer"},
+			{"scm", "application/vnd.lotus-screencam"},
+			{"lwp", "application/vnd.lotus-wordpro"},
+			{"portpkg", "application/vnd.macports.portpkg"},
+			{"mcd", "application/vnd.mcd"},
+			{"mc1", "application/vnd.medcalcdata"},
+			{"cdkey", "application/vnd.mediastation.cdkey"},
+			{"mwf", "application/vnd.mfer"},
+			{"mfm", "application/vnd.mfmp"},
+			{"flo", "application/vnd.micrografx.flo"},
+			{"igx", "application/vnd.micrografx.igx"},
+			{"mif", "application/vnd.mif"},
+			{"daf", "application/vnd.mobius.daf"},
+			{"dis", "application/vnd.mobius.dis"},
+			{"mbk", "application/vnd.mobius.mbk"},
+			{"mqy", "application/vnd.mobius.mqy"},
+			{"msl", "application/vnd.mobius.msl"},
+			{"plc", "application/vnd.mobius.plc"},
+			{"txf", "application/vnd.mobius.txf"},
+			{"mpn", "application/vnd.mophun.application"},
+			{"mpc", "application/vnd.mophun.certificate"},
+			{"xul", "application/vnd.mozilla.xul+xml"},
+			{"cil", "application/vnd.ms-artgalry"},
+			{"cab", "application/vnd.ms-cab-compressed"},
+			{"xls", "application/vnd.ms-excel"},
+			{"xlm", "application/vnd.ms-excel"},
+			{"xla", "application/vnd.ms-excel"},
+			{"xlc", "application/vnd.ms-excel"},
+			{"xlt", "application/vnd.ms-excel"},
+			{"xlw", "application/vnd.ms-excel"},
+			{"xlam", "application/vnd.ms-excel.addin.macroenabled.12"},
+			{"xlsb", "application/vnd.ms-excel.sheet.binary.macroenabled.12"},
+			{"xlsm", "application/vnd.ms-excel.sheet.macroenabled.12"},
+			{"xltm", "application/vnd.ms-excel.template.macroenabled.12"},
+			{"eot", "application/vnd.ms-fontobject"},
+			{"chm", "application/vnd.ms-htmlhelp"},
+			{"ims", "application/vnd.ms-ims"},
+			{"lrm", "application/vnd.ms-lrm"},
+			{"thmx", "application/vnd.ms-officetheme"},
+			{"cat", "application/vnd.ms-pki.seccat"},
+			{"stl", "application/vnd.ms-pki.stl"},
+			{"ppt", "application/vnd.ms-powerpoint"},
+			{"pps", "application/vnd.ms-powerpoint"},
+			{"pot", "application/vnd.ms-powerpoint"},
+			{"ppam", "application/vnd.ms-powerpoint.addin.macroenabled.12"},
+			{"pptm", "application/vnd.ms-powerpoint.presentation.macroenabled.12"},
+			{"sldm", "application/vnd.ms-powerpoint.slide.macroenabled.12"},
+			{"ppsm", "application/vnd.ms-powerpoint.slideshow.macroenabled.12"},
+			{"potm", "application/vnd.ms-powerpoint.template.macroenabled.12"},
+			{"mpp", "application/vnd.ms-project"},
+			{"mpt", "application/vnd.ms-project"},
+			{"docm", "application/vnd.ms-word.document.macroenabled.12"},
+			{"dotm", "application/vnd.ms-word.template.macroenabled.12"},
+			{"wps", "application/vnd.ms-works"},
+			{"wks", "application/vnd.ms-works"},
+			{"wcm", "application/vnd.ms-works"},
+			{"wdb", "application/vnd.ms-works"},
+			{"wpl", "application/vnd.ms-wpl"},
+			{"xps", "application/vnd.ms-xpsdocument"},
+			{"mseq", "application/vnd.mseq"},
+			{"mus", "application/vnd.musician"},
+			{"msty", "application/vnd.muvee.style"},
+			{"taglet", "application/vnd.mynfc"},
+			{"nlu", "application/vnd.neurolanguage.nlu"},
+			{"ntf", "application/vnd.nitf"},
+			{"nitf", "application/vnd.nitf"},
+			{"nnd", "application/vnd.noblenet-directory"},
+			{"nns", "application/vnd.noblenet-sealer"},
+			{"nnw", "application/vnd.noblenet-web"},
+			{"ngdat", "application/vnd.nokia.n-gage.data"},
+			{"n-gage", "application/vnd.nokia.n-gage.symbian.install"},
+			{"rpst", "application/vnd.nokia.radio-preset"},
+			{"rpss", "application/vnd.nokia.radio-presets"},
+			{"edm", "application/vnd.novadigm.edm"},
+			{"edx", "application/vnd.novadigm.edx"},
+			{"ext", "application/vnd.novadigm.ext"},
+			{"odc", "application/vnd.oasis.opendocument.chart"},
+			{"otc", "application/vnd.oasis.opendocument.chart-template"},
+			{"odb", "application/vnd.oasis.opendocument.database"},
+			{"odf", "application/vnd.oasis.opendocument.formula"},
+			{"odft", "application/vnd.oasis.opendocument.formula-template"},
+			{"odg", "application/vnd.oasis.opendocument.graphics"},
+			{"otg", "application/vnd.oasis.opendocument.graphics-template"},
+			{"odi", "application/vnd.oasis.opendocument.image"},
+			{"oti", "application/vnd.oasis.opendocument.image-template"},
+			{"odp", "application/vnd.oasis.opendocument.presentation"},
+			{"otp", "application/vnd.oasis.opendocument.presentation-template"},
+			{"ods", "application/vnd.oasis.opendocument.spreadsheet"},
+			{"ots", "application/vnd.oasis.opendocument.spreadsheet-template"},
+			{"odt", "application/vnd.oasis.opendocument.text"},
+			{"odm", "application/vnd.oasis.opendocument.text-master"},
+			{"ott", "application/vnd.oasis.opendocument.text-template"},
+			{"oth", "application/vnd.oasis.opendocument.text-web"},
+			{"xo", "application/vnd.olpc-sugar"},
+			{"dd2", "application/vnd.oma.dd2+xml"},
+			{"oxt", "application/vnd.openofficeorg.extension"},
+			{"pptx", "application/vnd.openxmlformats-officedocument.presentationml.presentation"},
+			{"sldx", "application/vnd.openxmlformats-officedocument.presentationml.slide"},
+			{"ppsx", "application/vnd.openxmlformats-officedocument.presentationml.slideshow"},
+			{"potx", "application/vnd.openxmlformats-officedocument.presentationml.template"},
+			{"xlsx", "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"},
+			{"xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template"},
+			{"docx", "application/vnd.openxmlformats-officedocument.wordprocessingml.document"},
+			{"dotx", "application/vnd.openxmlformats-officedocument.wordprocessingml.template"},
+			{"mgp", "application/vnd.osgeo.mapguide.package"},
+			{"dp", "application/vnd.osgi.dp"},
+			{"esa", "application/vnd.osgi.subsystem"},
+			{"pdb", "application/vnd.palm"},
+			{"pqa", "application/vnd.palm"},
+			{"oprc", "application/vnd.palm"},
+			{"paw", "application/vnd.pawaafile"},
+			{"str", "application/vnd.pg.format"},
+			{"ei6", "application/vnd.pg.osasli"},
+			{"efif", "application/vnd.picsel"},
+			{"wg", "application/vnd.pmi.widget"},
+			{"plf", "application/vnd.pocketlearn"},
+			{"pbd", "application/vnd.powerbuilder6"},
+			{"box", "application/vnd.previewsystems.box"},
+			{"mgz", "application/vnd.proteus.magazine"},
+			{"qps", "application/vnd.publishare-delta-tree"},
+			{"ptid", "application/vnd.pvi.ptid1"},
+			{"qxd", "application/vnd.quark.quarkxpress"},
+			{"qxt", "application/vnd.quark.quarkxpress"},
+			{"qwd", "application/vnd.quark.quarkxpress"},
+			{"qwt", "application/vnd.quark.quarkxpress"},
+			{"qxl", "application/vnd.quark.quarkxpress"},
+			{"qxb", "application/vnd.quark.quarkxpress"},
+			{"bed", "application/vnd.realvnc.bed"},
+			{"mxl", "application/vnd.recordare.musicxml"},
+			{"musicxml", "application/vnd.recordare.musicxml+xml"},
+			{"cryptonote", "application/vnd.rig.cryptonote"},
+			{"cod", "application/vnd.rim.cod"},
+			{"rm", "application/vnd.rn-realmedia"},
+			{"rmvb", "application/vnd.rn-realmedia-vbr"},
+			{"link66", "application/vnd.route66.link66+xml"},
+			{"st", "application/vnd.sailingtracker.track"},
+			{"see", "application/vnd.seemail"},
+			{"sema", "application/vnd.sema"},
+			{"semd", "application/vnd.semd"},
+			{"semf", "application/vnd.semf"},
+			{"ifm", "application/vnd.shana.informed.formdata"},
+			{"itp", "application/vnd.shana.informed.formtemplate"},
+			{"iif", "application/vnd.shana.informed.interchange"},
+			{"ipk", "application/vnd.shana.informed.package"},
+			{"twd", "application/vnd.simtech-mindmapper"},
+			{"twds", "application/vnd.simtech-mindmapper"},
+			{"mmf", "application/vnd.smaf"},
+			{"teacher", "application/vnd.smart.teacher"},
+			{"sdkm", "application/vnd.solent.sdkm+xml"},
+			{"sdkd", "application/vnd.solent.sdkm+xml"},
+			{"dxp", "application/vnd.spotfire.dxp"},
+			{"sfs", "application/vnd.spotfire.sfs"},
+			{"sdc", "application/vnd.stardivision.calc"},
+			{"sda", "application/vnd.stardivision.draw"},
+			{"sdd", "application/vnd.stardivision.impress"},
+			{"smf", "application/vnd.stardivision.math"},
+			{"sdw", "application/vnd.stardivision.writer"},
+			{"vor", "application/vnd.stardivision.writer"},
+			{"sgl", "application/vnd.stardivision.writer-global"},
+			{"smzip", "application/vnd.stepmania.package"},
+			{"sm", "application/vnd.stepmania.stepchart"},
+			{"sxc", "application/vnd.sun.xml.calc"},
+			{"stc", "application/vnd.sun.xml.calc.template"},
+			{"sxd", "application/vnd.sun.xml.draw"},
+			{"std", "application/vnd.sun.xml.draw.template"},
+			{"sxi", "application/vnd.sun.xml.impress"},
+			{"sti", "application/vnd.sun.xml.impress.template"},
+			{"sxm", "application/vnd.sun.xml.math"},
+			{"sxw", "application/vnd.sun.xml.writer"},
+			{"sxg", "application/vnd.sun.xml.writer.global"},
+			{"stw", "application/vnd.sun.xml.writer.template"},
+			{"sus", "application/vnd.sus-calendar"},
+			{"susp", "application/vnd.sus-calendar"},
+			{"svd", "application/vnd.svd"},
+			{"sis", "application/vnd.symbian.install"},
+			{"sisx", "application/vnd.symbian.install"},
+			{"xsm", "application/vnd.syncml+xml"},
+			{"bdm", "application/vnd.syncml.dm+wbxml"},
+			{"xdm", "application/vnd.syncml.dm+xml"},
+			{"tao", "application/vnd.tao.intent-module-archive"},
+			{"pcap", "application/vnd.tcpdump.pcap"},
+			{"cap", "application/vnd.tcpdump.pcap"},
+			{"dmp", "application/vnd.tcpdump.pcap"},
+			{"tmo", "application/vnd.tmobile-livetv"},
+			{"tpt", "application/vnd.trid.tpt"},
+			{"mxs", "application/vnd.triscape.mxs"},
+			{"tra", "application/vnd.trueapp"},
+			{"ufd", "application/vnd.ufdl"},
+			{"ufdl", "application/vnd.ufdl"},
+			{"utz", "application/vnd.uiq.theme"},
+			{"umj", "application/vnd.umajin"},
+			{"unityweb", "application/vnd.unity"},
+			{"uoml", "application/vnd.uoml+xml"},
+			{"vcx", "application/vnd.vcx"},
+			{"vsd", "application/vnd.visio"},
+			{"vst", "application/vnd.visio"},
+			{"vss", "application/vnd.visio"},
+			{"vsw", "application/vnd.visio"},
+			{"vis", "application/vnd.visionary"},
+			{"vsf", "application/vnd.vsf"},
+			{"wbxml", "application/vnd.wap.wbxml"},
+			{"wmlc", "application/vnd.wap.wmlc"},
+			{"wmlsc", "application/vnd.wap.wmlscriptc"},
+			{"wtb", "application/vnd.webturbo"},
+			{"nbp", "application/vnd.wolfram.player"},
+			{"wpd", "application/vnd.wordperfect"},
+			{"wqd", "application/vnd.wqd"},
+			{"stf", "application/vnd.wt.stf"},
+			{"xar", "application/vnd.xara"},
+			{"xfdl", "application/vnd.xfdl"},
+			{"hvd", "application/vnd.yamaha.hv-dic"},
+			{"hvs", "application/vnd.yamaha.hv-script"},
+			{"hvp", "application/vnd.yamaha.hv-voice"},
+			{"osf", "application/vnd.yamaha.openscoreformat"},
+			{"osfpvg", "application/vnd.yamaha.openscoreformat.osfpvg+xml"},
+			{"saf", "application/vnd.yamaha.smaf-audio"},
+			{"spf", "application/vnd.yamaha.smaf-phrase"},
+			{"cmp", "application/vnd.yellowriver-custom-menu"},
+			{"zir", "application/vnd.zul"},
+			{"zirz", "application/vnd.zul"},
+			{"zaz", "application/vnd.zzazz.deck+xml"},
+			{"vxml", "application/voicexml+xml"},
+			{"wgt", "application/widget"},
+			{"hlp", "application/winhlp"},
+			{"wsdl", "application/wsdl+xml"},
+			{"wspolicy", "application/wspolicy+xml"},
+			{"7z", "application/x-7z-compressed"},
+			{"abw", "application/x-abiword"},
+			{"ace", "application/x-ace-compressed"},
+			{"dmg", "application/x-apple-diskimage"},
+			{"aab", "application/x-authorware-bin"},
+			{"x32", "application/x-authorware-bin"},
+			{"u32", "application/x-authorware-bin"},
+			{"vox", "application/x-authorware-bin"},
+			{"aam", "application/x-authorware-map"},
+			{"aas", "application/x-authorware-seg"},
+			{"bcpio", "application/x-bcpio"},
+			{"torrent", "application/x-bittorrent"},
+			{"blb", "application/x-blorb"},
+			{"blorb", "application/x-blorb"},
+			{"bz", "application/x-bzip"},
+			{"bz2", "application/x-bzip2"},
+			{"boz", "application/x-bzip2"},
+			{"cbr", "application/x-cbr"},
+			{"cba", "application/x-cbr"},
+			{"cbt", "application/x-cbr"},
+			{"cbz", "application/x-cbr"},
+			{"cb7", "application/x-cbr"},
+			{"vcd", "application/x-cdlink"},
+			{"cfs", "application/x-cfs-compressed"},
+			{"chat", "application/x-chat"},
+			{"pgn", "application/x-chess-pgn"},
+			{"nsc", "application/x-conference"},
+			{"cpio", "application/x-cpio"},
+			{"csh", "application/x-csh"},
+			{"deb", "application/x-debian-package"},
+			{"udeb", "application/x-debian-package"},
+			{"dgc", "application/x-dgc-compressed"},
+			{"dir", "application/x-director"},
+			{"dcr", "application/x-director"},
+			{"dxr", "application/x-director"},
+			{"cst", "application/x-director"},
+			{"cct", "application/x-director"},
+			{"cxt", "application/x-director"},
+			{"w3d", "application/x-director"},
+			{"fgd", "application/x-director"},
+			{"swa", "application/x-director"},
+			{"wad", "application/x-doom"},
+			{"ncx", "application/x-dtbncx+xml"},
+			{"dtb", "application/x-dtbook+xml"},
+			{"res", "application/x-dtbresource+xml"},
+			{"dvi", "application/x-dvi"},
+			{"evy", "application/x-envoy"},
+			{"eva", "application/x-eva"},
+			{"bdf", "application/x-font-bdf"},
+			{"gsf", "application/x-font-ghostscript"},
+			{"psf", "application/x-font-linux-psf"},
+			{"pcf", "application/x-font-pcf"},
+			{"snf", "application/x-font-snf"},
+			{"pfa", "application/x-font-type1"},
+			{"pfb", "application/x-font-type1"},
+			{"pfm", "application/x-font-type1"},
+			{"afm", "application/x-font-type1"},
+			{"arc", "application/x-freearc"},
+			{"spl", "application/x-futuresplash"},
+			{"gca", "application/x-gca-compressed"},
+			{"ulx", "application/x-glulx"},
+			{"gnumeric", "application/x-gnumeric"},
+			{"gramps", "application/x-gramps-xml"},
+			{"gtar", "application/x-gtar"},
+			{"hdf", "application/x-hdf"},
+			{"install", "application/x-install-instructions"},
+			{"iso", "application/x-iso9660-image"},
+			{"jnlp", "application/x-java-jnlp-file"},
+			{"latex", "application/x-latex"},
+			{"lzh", "application/x-lzh-compressed"},
+			{"lha", "application/x-lzh-compressed"},
+			{"mie", "application/x-mie"},
+			{"prc", "application/x-mobipocket-ebook"},
+			{"mobi", "application/x-mobipocket-ebook"},
+			{"application", "application/x-ms-application"},
+			{"lnk", "application/x-ms-shortcut"},
+			{"wmd", "application/x-ms-wmd"},
+			{"wmz", "application/x-msmetafile"},
+			{"xbap", "application/x-ms-xbap"},
+			{"mdb", "application/x-msaccess"},
+			{"obd", "application/x-msbinder"},
+			{"crd", "application/x-mscardfile"},
+			{"clp", "application/x-msclip"},
+			{"exe", "application/x-msdownload"},
+			{"dll", "application/x-msdownload"},
+			{"com", "application/x-msdownload"},
+			{"bat", "application/x-msdownload"},
+			{"msi", "application/x-msdownload"},
+			{"mvb", "application/x-msmediaview"},
+			{"m13", "application/x-msmediaview"},
+			{"m14", "application/x-msmediaview"},
+			{"wmf", "application/x-msmetafile"},
+			{"emf", "application/x-msmetafile"},
+			{"emz", "application/x-msmetafile"},
+			{"mny", "application/x-msmoney"},
+			{"pub", "application/x-mspublisher"},
+			{"scd", "application/x-msschedule"},
+			{"trm", "application/x-msterminal"},
+			{"wri", "application/x-mswrite"},
+			{"nc", "application/x-netcdf"},
+			{"cdf", "application/x-netcdf"},
+			{"nzb", "application/x-nzb"},
+			{"p12", "application/x-pkcs12"},
+			{"pfx", "application/x-pkcs12"},
+			{"p7b", "application/x-pkcs7-certificates"},
+			{"spc", "application/x-pkcs7-certificates"},
+			{"p7r", "application/x-pkcs7-certreqresp"},
+			{"rar", "application/x-rar-compressed"},
+			{"ris", "application/x-research-info-systems"},
+			{"sh", "application/x-sh"},
+			{"shar", "application/x-shar"},
+			{"swf", "application/x-shockwave-flash"},
+			{"xap", "application/x-silverlight-app"},
+			{"sql", "application/x-sql"},
+			{"sit", "application/x-stuffit"},
+			{"sitx", "application/x-stuffitx"},
+			{"srt", "application/x-subrip"},
+			{"sv4cpio", "application/x-sv4cpio"},
+			{"sv4crc", "application/x-sv4crc"},
+			{"t3", "application/x-t3vm-image"},
+			{"gam", "application/x-tads"},
+			{"tar", "application/x-tar"},
+			{"tcl", "application/x-tcl"},
+			{"tex", "application/x-tex"},
+			{"tfm", "application/x-tex-tfm"},
+			{"texinfo", "application/x-texinfo"},
+			{"texi", "application/x-texinfo"},
+			{"obj", "application/x-tgif"},
+			{"ustar", "application/x-ustar"},
+			{"src", "application/x-wais-source"},
+			{"der", "application/x-x509-ca-cert"},
+			{"crt", "application/x-x509-ca-cert"},
+			{"fig", "application/x-xfig"},
+			{"xlf", "application/x-xliff+xml"},
+			{"xpi", "application/x-xpinstall"},
+			{"xz", "application/x-xz"},
+			{"z1", "application/x-zmachine"},
+			{"z2", "application/x-zmachine"},
+			{"z3", "application/x-zmachine"},
+			{"z4", "application/x-zmachine"},
+			{"z5", "application/x-zmachine"},
+			{"z6", "application/x-zmachine"},
+			{"z7", "application/x-zmachine"},
+			{"z8", "application/x-zmachine"},
+			{"xaml", "application/xaml+xml"},
+			{"xdf", "application/xcap-diff+xml"},
+			{"xenc", "application/xenc+xml"},
+			{"xhtml", "application/xhtml+xml"},
+			{"xht", "application/xhtml+xml"},
+			{"xml", "application/xml"},
+			{"xsl", "application/xml"},
+			{"dtd", "application/xml-dtd"},
+			{"xop", "application/xop+xml"},
+			{"xpl", "application/xproc+xml"},
+			{"xslt", "application/xslt+xml"},
+			{"xspf", "application/xspf+xml"},
+			{"mxml", "application/xv+xml"},
+			{"xhvml", "application/xv+xml"},
+			{"xvml", "application/xv+xml"},
+			{"xvm", "application/xv+xml"},
+			{"yang", "application/yang"},
+			{"yin", "application/yin+xml"},
+			{"zip", "application/zip"},
+			{"adp", "audio/adpcm"},
+			{"au", "audio/basic"},
+			{"snd", "audio/basic"},
+			{"mid", "audio/midi"},
+			{"midi", "audio/midi"},
+			{"kar", "audio/midi"},
+			{"rmi", "audio/midi"},
+			{"m4a", "audio/mp4"},
+			{"mp4a", "audio/mp4"},
+			{"mpga", "audio/mpeg"},
+			{"mp2", "audio/mpeg"},
+			{"mp2a", "audio/mpeg"},
+			{"mp3", "audio/mpeg"},
+			{"m2a", "audio/mpeg"},
+			{"m3a", "audio/mpeg"},
+			{"oga", "audio/ogg"},
+			{"ogg", "audio/ogg"},
+			{"spx", "audio/ogg"},
+			{"opus", "audio/ogg"},
+			{"s3m", "audio/s3m"},
+			{"sil", "audio/silk"},
+			{"uva", "audio/vnd.dece.audio"},
+			{"uvva", "audio/vnd.dece.audio"},
+			{"eol", "audio/vnd.digital-winds"},
+			{"dra", "audio/vnd.dra"},
+			{"dts", "audio/vnd.dts"},
+			{"dtshd", "audio/vnd.dts.hd"},
+			{"lvp", "audio/vnd.lucent.voice"},
+			{"pya", "audio/vnd.ms-playready.media.pya"},
+			{"ecelp4800", "audio/vnd.nuera.ecelp4800"},
+			{"ecelp7470", "audio/vnd.nuera.ecelp7470"},
+			{"ecelp9600", "audio/vnd.nuera.ecelp9600"},
+			{"rip", "audio/vnd.rip"},
+			{"weba", "audio/webm"},
+			{"aac", "audio/x-aac"},
+			{"aif", "audio/x-aiff"},
+			{"aiff", "audio/x-aiff"},
+			{"aifc", "audio/x-aiff"},
+			{"caf", "audio/x-caf"},
+			{"flac", "audio/x-flac"},
+			{"mka", "audio/x-matroska"},
+			{"m3u", "audio/x-mpegurl"},
+			{"wax", "audio/x-ms-wax"},
+			{"wma", "audio/x-ms-wma"},
+			{"ram", "audio/x-pn-realaudio"},
+			{"ra", "audio/x-pn-realaudio"},
+			{"rmp", "audio/x-pn-realaudio-plugin"},
+			{"wav", "audio/x-wav"},
+			{"xm", "audio/xm"},
+			{"cdx", "chemical/x-cdx"},
+			{"cif", "chemical/x-cif"},
+			{"cmdf", "chemical/x-cmdf"},
+			{"cml", "chemical/x-cml"},
+			{"csml", "chemical/x-csml"},
+			{"xyz", "chemical/x-xyz"},
+			{"ttc", "font/collection"},
+			{"otf", "font/otf"},
+			{"ttf", "font/ttf"},
+			{"woff", "font/woff"},
+			{"woff2", "font/woff2"},
+			{"bmp", "image/bmp"},
+			{"cgm", "image/cgm"},
+			{"g3", "image/g3fax"},
+			{"gif", "image/gif"},
+			{"ief", "image/ief"},
+			{"jpeg", "image/jpeg"},
+			{"jpg", "image/jpeg"},
+			{"jpe", "image/jpeg"},
+			{"ktx", "image/ktx"},
+			{"png", "image/png"},
+			{"btif", "image/prs.btif"},
+			{"sgi", "image/sgi"},
+			{"svg", "image/svg+xml"},
+			{"svgz", "image/svg+xml"},
+			{"tiff", "image/tiff"},
+			{"tif", "image/tiff"},
+			{"psd", "image/vnd.adobe.photoshop"},
+			{"uvi", "image/vnd.dece.graphic"},
+			{"uvvi", "image/vnd.dece.graphic"},
+			{"uvg", "image/vnd.dece.graphic"},
+			{"uvvg", "image/vnd.dece.graphic"},
+			{"djvu", "image/vnd.djvu"},
+			{"djv", "image/vnd.djvu"},
+			{"sub", "text/vnd.dvb.subtitle"},
+			{"dwg", "image/vnd.dwg"},
+			{"dxf", "image/vnd.dxf"},
+			{"fbs", "image/vnd.fastbidsheet"},
+			{"fpx", "image/vnd.fpx"},
+			{"fst", "image/vnd.fst"},
+			{"mmr", "image/vnd.fujixerox.edmics-mmr"},
+			{"rlc", "image/vnd.fujixerox.edmics-rlc"},
+			{"mdi", "image/vnd.ms-modi"},
+			{"wdp", "image/vnd.ms-photo"},
+			{"npx", "image/vnd.net-fpx"},
+			{"wbmp", "image/vnd.wap.wbmp"},
+			{"xif", "image/vnd.xiff"},
+			{"webp", "image/webp"},
+			{"3ds", "image/x-3ds"},
+			{"ras", "image/x-cmu-raster"},
+			{"cmx", "image/x-cmx"},
+			{"fh", "image/x-freehand"},
+			{"fhc", "image/x-freehand"},
+			{"fh4", "image/x-freehand"},
+			{"fh5", "image/x-freehand"},
+			{"fh7", "image/x-freehand"},
+			{"ico", "image/x-icon"},
+			{"sid", "image/x-mrsid-image"},
+			{"pcx", "image/x-pcx"},
+			{"pic", "image/x-pict"},
+			{"pct", "image/x-pict"},
+			{"pnm", "image/x-portable-anymap"},
+			{"pbm", "image/x-portable-bitmap"},
+			{"pgm", "image/x-portable-graymap"},
+			{"ppm", "image/x-portable-pixmap"},
+			{"rgb", "image/x-rgb"},
+			{"tga", "image/x-tga"},
+			{"xbm", "image/x-xbitmap"},
+			{"xpm", "image/x-xpixmap"},
+			{"xwd", "image/x-xwindowdump"},
+			{"eml", "message/rfc822"},
+			{"mime", "message/rfc822"},
+			{"igs", "model/iges"},
+			{"iges", "model/iges"},
+			{"msh", "model/mesh"},
+			{"mesh", "model/mesh"},
+			{"silo", "model/mesh"},
+			{"dae", "model/vnd.collada+xml"},
+			{"dwf", "model/vnd.dwf"},
+			{"gdl", "model/vnd.gdl"},
+			{"gtw", "model/vnd.gtw"},
+			{"mts", "model/vnd.mts"},
+			{"vtu", "model/vnd.vtu"},
+			{"wrl", "model/vrml"},
+			{"vrml", "model/vrml"},
+			{"x3db", "model/x3d+binary"},
+			{"x3dbz", "model/x3d+binary"},
+			{"x3dv", "model/x3d+vrml"},
+			{"x3dvz", "model/x3d+vrml"},
+			{"x3d", "model/x3d+xml"},
+			{"x3dz", "model/x3d+xml"},
+			{"appcache", "text/cache-manifest"},
+			{"ics", "text/calendar"},
+			{"ifb", "text/calendar"},
+			{"css", "text/css"},
+			{"csv", "text/csv"},
+			{"html", "text/html"},
+			{"htm", "text/html"},
+			{"n3", "text/n3"},
+			{"txt", "text/plain"},
+			{"text", "text/plain"},
+			{"conf", "text/plain"},
+			{"def", "text/plain"},
+			{"list", "text/plain"},
+			{"log", "text/plain"},
+			{"in", "text/plain"},
+			{"dsc", "text/prs.lines.tag"},
+			{"rtx", "text/richtext"},
+			{"sgml", "text/sgml"},
+			{"sgm", "text/sgml"},
+			{"tsv", "text/tab-separated-values"},
+			{"t", "text/troff"},
+			{"tr", "text/troff"},
+			{"roff", "text/troff"},
+			{"man", "text/troff"},
+			{"me", "text/troff"},
+			{"ms", "text/troff"},
+			{"ttl", "text/turtle"},
+			{"uri", "text/uri-list"},
+			{"uris", "text/uri-list"},
+			{"urls", "text/uri-list"},
+			{"vcard", "text/vcard"},
+			{"curl", "text/vnd.curl"},
+			{"dcurl", "text/vnd.curl.dcurl"},
+			{"mcurl", "text/vnd.curl.mcurl"},
+			{"scurl", "text/vnd.curl.scurl"},
+			{"fly", "text/vnd.fly"},
+			{"flx", "text/vnd.fmi.flexstor"},
+			{"gv", "text/vnd.graphviz"},
+			{"3dml", "text/vnd.in3d.3dml"},
+			{"spot", "text/vnd.in3d.spot"},
+			{"jad", "text/vnd.sun.j2me.app-descriptor"},
+			{"wml", "text/vnd.wap.wml"},
+			{"wmls", "text/vnd.wap.wmlscript"},
+			{"s", "text/x-asm"},
+			{"asm", "text/x-asm"},
+			{"c", "text/x-c"},
+			{"cc", "text/x-c"},
+			{"cxx", "text/x-c"},
+			{"cpp", "text/x-c"},
+			{"h", "text/x-c"},
+			{"hh", "text/x-c"},
+			{"dic", "text/x-c"},
+			{"f", "text/x-fortran"},
+			{"for", "text/x-fortran"},
+			{"f77", "text/x-fortran"},
+			{"f90", "text/x-fortran"},
+			{"java", "text/x-java-source"},
+			{"nfo", "text/x-nfo"},
+			{"opml", "text/x-opml"},
+			{"p", "text/x-pascal"},
+			{"pas", "text/x-pascal"},
+			{"etx", "text/x-setext"},
+			{"sfv", "text/x-sfv"},
+			{"uu", "text/x-uuencode"},
+			{"vcs", "text/x-vcalendar"},
+			{"vcf", "text/x-vcard"},
+			{"3gp", "video/3gpp"},
+			{"3g2", "video/3gpp2"},
+			{"h261", "video/h261"},
+			{"h263", "video/h263"},
+			{"h264", "video/h264"},
+			{"jpgv", "video/jpeg"},
+			{"jpm", "video/jpm"},
+			{"jpgm", "video/jpm"},
+			{"mj2", "video/mj2"},
+			{"mjp2", "video/mj2"},
+			{"mp4", "video/mp4"},
+			{"mp4v", "video/mp4"},
+			{"mpg4", "video/mp4"},
+			{"mpeg", "video/mpeg"},
+			{"mpg", "video/mpeg"},
+			{"mpe", "video/mpeg"},
+			{"m1v", "video/mpeg"},
+			{"m2v", "video/mpeg"},
+			{"ogv", "video/ogg"},
+			{"qt", "video/quicktime"},
+			{"mov", "video/quicktime"},
+			{"uvh", "video/vnd.dece.hd"},
+			{"uvvh", "video/vnd.dece.hd"},
+			{"uvm", "video/vnd.dece.mobile"},
+			{"uvvm", "video/vnd.dece.mobile"},
+			{"uvp", "video/vnd.dece.pd"},
+			{"uvvp", "video/vnd.dece.pd"},
+			{"uvs", "video/vnd.dece.sd"},
+			{"uvvs", "video/vnd.dece.sd"},
+			{"uvv", "video/vnd.dece.video"},
+			{"uvvv", "video/vnd.dece.video"},
+			{"dvb", "video/vnd.dvb.file"},
+			{"fvt", "video/vnd.fvt"},
+			{"mxu", "video/vnd.mpegurl"},
+			{"m4u", "video/vnd.mpegurl"},
+			{"pyv", "video/vnd.ms-playready.media.pyv"},
+			{"uvu", "video/vnd.uvvu.mp4"},
+			{"uvvu", "video/vnd.uvvu.mp4"},
+			{"viv", "video/vnd.vivo"},
+			{"webm", "video/webm"},
+			{"f4v", "video/x-f4v"},
+			{"fli", "video/x-fli"},
+			{"flv", "video/x-flv"},
+			{"m4v", "video/x-m4v"},
+			{"mkv", "video/x-matroska"},
+			{"mk3d", "video/x-matroska"},
+			{"mks", "video/x-matroska"},
+			{"mng", "video/x-mng"},
+			{"asf", "video/x-ms-asf"},
+			{"asx", "video/x-ms-asf"},
+			{"vob", "video/x-ms-vob"},
+			{"wm", "video/x-ms-wm"},
+			{"wmv", "video/x-ms-wmv"},
+			{"wmx", "video/x-ms-wmx"},
+			{"wvx", "video/x-ms-wvx"},
+			{"avi", "video/x-msvideo"},
+			{"movie", "video/x-sgi-movie"},
+			{"smv", "video/x-smv"},
+			{"ice", "x-conference/x-cooltalk"}}};
 };
 
 

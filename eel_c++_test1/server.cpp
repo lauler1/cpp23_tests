@@ -139,8 +139,13 @@ std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* e
 		income.ws_header.unmask(event_data_ptr->buffer, event_data_ptr->buffer,event_data_ptr->length);
 
 		proc_request_.on_websocket(&income, &response);
-
 		event_data_ptr->length = response.length;
+		
+		if((income.ws_header.op_code == WebSocketOpCode::Close) or
+		(response.ws_header.op_code == WebSocketOpCode::Close)){
+			event_data_ptr->keep_alive = false;
+			return std::make_tuple("", 0, nullptr);
+		}
 
 		return std::make_tuple("", event_data_ptr->length, event_data_ptr->buffer);
 	}

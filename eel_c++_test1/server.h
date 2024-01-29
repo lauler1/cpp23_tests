@@ -15,11 +15,7 @@
 #include <tuple>
 #include <iostream>
 
-
 #include "mime.h"
-
-//#include "platform.h" //implementation dependent, e.g.: linux.cpp
-
 #include <memory>
 
 /**
@@ -30,6 +26,7 @@ enum class ServError {
 	NOT_STARTED,      // Not yet started
 	WRONG_INIT_PARAM, // Some initialization param is wrong
 	STARTED,       	  // Already started
+	NULL_BUFF,        // Missing buffer allocation (nullptr)
 	SOCKET,
 	SOCK_OPTS,
 	SOCK_BIND,
@@ -38,7 +35,6 @@ enum class ServError {
 	EPOLL_CREATE,
 	EPOLL_CTL,
 	EPOLL_WAIT
-	
 };
 
 /**
@@ -65,7 +61,6 @@ enum class BodyType {
 	TEXT,     // Simple text in the HTTP response body
 	TXT_FILE, // Send a text file
 	BIN_FILE, // Send a binary file
-
 };
 
 enum class ResponseCode {
@@ -110,13 +105,10 @@ enum class WebSocketOpCode : unsigned char
     // 0x0b-0x0f	Reserved for future use.
 };
 
-
 struct WebSocketHeaderRaw
 {
 	bool final_fragment{true};
-	//char RSV1 : 1;
-	//char RSV2 : 1;
-	//char RSV3 : 1;
+
 	WebSocketOpCode op_code{WebSocketOpCode::Text};
 	bool is_masked{false};
 	std::uint64_t payload_length{0};
@@ -170,8 +162,7 @@ struct WebSocketHeaderRaw
 		
 		buff[0]  = (((unsigned char)final_fragment) << 7);
 		buff[0] |= (((unsigned char)op_code) & 0x0F);
-		buff[1]  = (((unsigned char)is_masked) << 7);
-		//buff[1] |= (((unsigned char)payload_length) & 0x7F);		
+		buff[1]  = (((unsigned char)is_masked) << 7);	
 		
 		if(payload_length > 0xFFFF){
 			buff[1] |= (127 & 0x7F);
@@ -219,15 +210,12 @@ struct WebSocketHeaderRaw
 			length -= payload_shift;
 
 			for (std::uint64_t i = 0; i < length; i++){
-				printf(" >>> unmask in[%ld] = %X, mask = %X\n", i, (unsigned int)in_buffer[i], (unsigned int)masks[i % 4]);
 				out_ptr[i] = in_ptr[i] ^ masks[i % 4];
-				printf(" >>> unmask out[%ld] = %X\n", i, (unsigned int)out_buffer[i]);
 			}
 		}
 	}
 	
 	std::string to_string(){
-		
 		auto to_hex = [](int value) -> std::string{
 			std::stringstream ss;
 			ss << std::hex << value;
@@ -287,18 +275,26 @@ struct ServInit {
 /**
 	Raw data exchangeds via socket.
 	For internal use only
+	
 */
 struct EventData {
-	EventData() : fd{0}, length{0}, cursor{0}, capacity_{100240} {buffer = new char[capacity_+1];}
-	EventData(size_t capacity) : fd{0}, length{0}, cursor{0}, capacity_{capacity} {buffer = new char[capacity_+1];}
-	~EventData() {delete[] buffer;}
+	EventData() : fd{0}, length{0}, cursor{0}, capacity_{100240} {buffer = new char[capacity_+1];buffer[capacity_] = 0;}
+	EventData(size_t capacity) : fd{0}, length{0}, cursor{0}, capacity_{capacity} {buffer = new char[capacity_+1];buffer[capacity_] = 0;}
+	EventData(char *buff, size_t capacity) : fd{0}, length{0}, cursor{0}, buffer{buff}, capacity_{capacity} {}
+	~EventData() { if(buffer != nullptr) delete[] buffer;}
 	unsigned long int id;
 	int fd;
 	bool websocket{false}; // Do not treat this as a HTTP socket
 	bool keep_alive{false};
 	ssize_t length; // number of bytes
-	size_t cursor; // for parcial reception/transmission
+	size_t cursor;  // for parcial reception/transmission
 	char *buffer;
+	
+	void change_capacity(size_t capacity){
+		capacity_ = capacity;
+		delete buffer;
+		buffer = new char[capacity_+1];buffer[capacity_] = 0;
+	}
 	
 	void reset(){
 		length = 0;
@@ -310,9 +306,6 @@ struct EventData {
 		std::cout << ":           id = " << id<< "\n";
 		std::cout << ":           fd = " << fd<< "\n";
 		std::cout << ":   keep_alive = " << keep_alive<< "\n";
-		//std::cout << ":       length = " << length<< "\n";
-		//std::cout << ":       cursor = " << cursor<< "\n";
-
 	}
 
 	private:
@@ -331,21 +324,12 @@ struct HttpRequest{
 	EventData* event_data_ptr{nullptr};
 	unsigned long int id;
 
-	//HttpRequestType method_type {HttpRequestType::UNKNOWN};
 	std::string method{""};
 	std::string uri{"/"};
 	std::string resource{""};
 	std::string protocol_version{"HTTP/1.1"};
 	std::map<std::string, std::string> headers{};
 	char message_body[10240];
-	/*
-	std::optional<std::string> get_header(std::string key) const {
-		
-		if(headers.find(key) != headers.end()){
-			return headers[key];
-		}
-		return {};
-	}*/
 
 };
 
@@ -354,7 +338,6 @@ struct HttpRequest{
 */
 struct HttpResponse{
 	HttpResponse() = default;
-	//EventData* event_data_ptr{nullptr};	
 	std::string protocol_version{"HTTP/1.1"};
 	ResponseCode status_code{ResponseCode::OK};
 	std::string reason{"OK"};
@@ -432,7 +415,13 @@ struct Request_Callback_Interface{
 
 /**
 	Micro Http server.
-	It has a sub class containing the platform dependent implementation
+	It has a sub class containing the platform dependent implementation.
+	
+	Note PlatSocketImpl: This is a sub class which is defined per platform (e.g. linux, windows) in a separate file.
+	 Currently only Linux. Include in the compilation only the applicable platform file.
+	
+	Note unitest: To test this class only, without testing the platform specific implementation (PlatSocketImpl),
+	 do not call start() function. Call instead directly the proc_raw_request() with a mocked EventData ptr.
 */
 class HttpServer{
 	ServInit conf_;
@@ -446,11 +435,17 @@ class HttpServer{
 		int start(std::string_view start_page);
 		int run();
 		
-		std::tuple<std::string, size_t, char*> proc_raw_request(EventData* event_data_ptr);
+		void internal_unittests();
+		bool proc_raw_request(EventData* event_data_ptr);
 		
 	private:	
 		class PlatSocketImpl;// Forward declaration of the platform dependent implementation class
 		std::unique_ptr<PlatSocketImpl> pImpl; // Pointer to platform dependent implementation
+		
+		bool prepare_ws_response(EventData* event_data_ptr);
+		bool prepare_http_response(std::string_view response_string, size_t buff_size, char* bin_buff, EventData *event_data_ptr);
+		bool parse_http_request(HttpRequest &request, EventData *event_data_ptr);
+
 };
 
 /**
@@ -459,7 +454,7 @@ class HttpServer{
 */
 extern int open_browser(std::string url);
 
-extern std::string get_sec_websocket_accept(std::string key);
+extern std::string get_sec_websocket_accept_attr(std::string key);
 
 extern void save_buffer(std::string filename, const char* buffer, size_t len, bool append = false);
 #endif // _SERVER_H_

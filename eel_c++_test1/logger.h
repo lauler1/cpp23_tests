@@ -2,25 +2,8 @@
 #define _LOGGER_H_
 
 #include <string_view>
-//#include <iostream>
 #include <source_location>
 #include <fstream>
-/*
-#include <sstream>
-#include <iomanip>
-
-#include <cstdint>
-#include <string>
-#include <cstring>
-#include <map>
-#include <functional>
-#include <optional>
-#include <tuple>
-#include <iostream>
-#include <format>
-#include "mime.h"
-#include <memory>
-*/
 
 /**
 	Micro Logger
@@ -37,6 +20,5 @@ class Logger{
 	private:	
 		std::ofstream outfile;
 };
-
 
 #endif // _LOGGER_H_

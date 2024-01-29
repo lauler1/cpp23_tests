@@ -7,29 +7,23 @@
 #include <span>
 #include <algorithm>
 
-
 /**
 	Http response data
 */
 struct MimeType{
-	
 	~MimeType() = default;
 	MimeType() = default;
 	
 	std::string_view get_mime_from_resource(std::string_view resource){
-		
 		for (const std::array<std::string_view, 2>& item : list){
-
 			if(item[0] == resource){
 				return item[1];
 			}
 		}
-
 		return "";
 	};
 	
 	private:
-
 		std::array<std::array<std::string_view, 2>, 984>  list {{
 			{"ez", "application/andrew-inset"},
 			{"aw", "application/applixware"},
@@ -1016,6 +1010,5 @@ struct MimeType{
 			{"smv", "video/x-smv"},
 			{"ice", "x-conference/x-cooltalk"}}};
 };
-
 
 #endif // _MIME_H_

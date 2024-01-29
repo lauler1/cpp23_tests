@@ -4,8 +4,52 @@
 #include <sstream>
 #include <iomanip>
 #include <ranges>
+#include <cassert>
 
+/** Full server */
 void test1(HttpServer &server) {
+
+	// parse_http_request:
+	// parse a valid http header -> return true
+	// parse a invalid http header -> return false
+	
+	// prepare_ws_response:
+	// parse a valid Websocket packet -> return true
+	// parse a invalid Websocket packet -> return false
+
+	// prepare_http_response: <- Must be refactored
+	// Text only -> out buffer contains data
+	// Text only, Need more space -> out buffer is re-allocated and contains data
+	// Binary -> out buffer contains header + in buffer data
+	// Binary, Need more space -> out buffer is re-allocated and contains header + in buffer data
+	
+	server.internal_unittests();
+
+	// Receies a packet not http neither Websocket -> automatic 500 BadRequest
+	//			websocket  = false
+	//			keep_alive = false
+
+	// proc_raw_request:
+	// Receives a simple GET with text -> valid 200 OK mewssage
+	//			websocket  = false
+	//			keep_alive = false
+
+	// Receives a simple GET with text keep alive -> valid 200 OK mewssage
+	//			websocket  = false
+	//			keep_alive = true
+
+	// Receives a request to upgrade to Websocket -> valid 200 OK mewssage:
+	//			websocket  = true
+	//			keep_alive = true
+
+	// Receives a Websocket packet with imasks -> valid
+	//			websocket  = true
+	//			keep_alive = true
+	
+}
+
+/** Full server */
+void test2(HttpServer &server) {
     std::cout << "test1\n";
 	auto err = server.start("index.html");
 	if(err != 0){
@@ -21,7 +65,6 @@ void test1(HttpServer &server) {
 		std::cout << " Error: " << std::strerror(err) << "\n";
 		return;
 	}
-
 }
 
 struct Eel: Request_Callback_Interface{
@@ -30,7 +73,6 @@ struct Eel: Request_Callback_Interface{
 	bool on_request(HttpRequest* request, HttpResponse* response) override;
 	bool on_websocket(WsIncome* income, WsResponse* response) override;
 };
-
 
 std::string bufferToHexString(const unsigned char* buffer, size_t length) {
     std::stringstream hexString;
@@ -103,8 +145,7 @@ bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* respon
 
 			response->headers["Upgrade"] = "websocket";
 			response->headers["Connection"] = "Upgrade";
-			//response->headers["Sec-WebSocket-Accept"] = get_sec_websocket_accept("q4xkcO32u266gldTuKaSOw==");
-			response->headers["Sec-WebSocket-Accept"] = get_sec_websocket_accept(request->headers["Sec-WebSocket-Key"]);
+			response->headers["Sec-WebSocket-Accept"] = get_sec_websocket_accept_attr(request->headers["Sec-WebSocket-Key"]);
 
 			response->body_message = "";
 		}
@@ -114,13 +155,8 @@ bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* respon
 };
 
 int main() {
-	Eel test{};// = new(Test);
 	
-			/*MimeType mime{};
-			std::string mime_type = std::string(mime.get_mime_from_resource("html"));
-			std::cout << " MIME type = " << mime_type<< "\n";	
-			mime_type = std::string(mime.get_mime_from_resource("jpg"));
-			std::cout << " MIME type = " << mime_type<< "\n";	*/
+	Eel test{};
 	
 	auto server = HttpServer({.port = 8001, .dir{"web"}, .open_browser=false}, test);
 	

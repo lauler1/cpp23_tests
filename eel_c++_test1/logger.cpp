@@ -1,15 +1,5 @@
 #include "logger.h"
 
-/*
-#include <iostream>
-#include <fstream>
-#include <cerrno>
-#include <sstream>
-#include <regex>
-#include <filesystem>
-#include <cassert>
-*/
-
 #include <format>
 #include <iostream>
 #include <chrono>
@@ -46,5 +36,3 @@ void Logger::log(const std::string_view msg, const std::source_location& locatio
 	outfile.write(log_str.data(), log_str.size());
 	outfile.flush();
 }
-
-//std::cout << std::format("{} {}!", "Hello", "world", "something") << "\n";

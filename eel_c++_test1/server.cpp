@@ -16,9 +16,6 @@ unsigned char buff[] = {
 
 
 std::string  my_base64(std::string hex){
-	
-	//std::cout << "  my_base64: hex = "<<hex<<"\n";
-	
 	std::string result = "";
 	
 	bool pading = false;
@@ -32,31 +29,20 @@ std::string  my_base64(std::string hex){
 			byteString += "0";
 		}
 		
-		
 		unsigned long val = std::stoul(byteString, nullptr, 16);
-		
-		//std::cout << "  my_base64: 0x"<<byteString<<" = "<<val<<std::endl;
-		
 		unsigned int low = val & 0x3F;
 		unsigned int high = (val >> 6) & 0x3F;
-		/*if(low > 63 or high > 63){
-			//std::cout << "  my_base64: values > 63\n";
-		}*/
 		result += buff[high];
 		if(pading){
 			result += '=';
 		}else{
 			result += buff[low];
 		}
-		//std::cout << "  my_base64: low = "<<low<<", high = "<<high<< ", high = "<< buff[high] << ", low="<< buff[low] <<std::endl;
-    }//					  40	101000	o
-	//std::cout << "  my_base64: result = "<<result<<std::endl;
+    }
 	return result;
 }
 
-std::string get_sec_websocket_accept(std::string key){
-	
-	//const char[] = "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
+std::string get_sec_websocket_accept_attr(std::string key){
 	key += "258EAFA5-E914-47DA-95CA-C5AB0DC85B11";
 	
 	SHA1 checksum;
@@ -64,7 +50,6 @@ std::string get_sec_websocket_accept(std::string key){
 	std::cout << "  key: "<<key<<"\n";
 	std::string hex = checksum.final();
 	std::cout << "  SHA1: "<<hex<<"\n";
-
 
 	std::cout << "  Base64: "<<my_base64(hex)<<"\n";	
 	return my_base64(hex);
@@ -116,111 +101,30 @@ std::uintmax_t get_file_size(const std::string &path){
 	return ans;
 }
 
-std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* event_data_ptr){
+bool HttpServer::proc_raw_request(EventData* event_data_ptr){
 	assert(event_data_ptr != nullptr);
 	
 	size_t buff_size = 0;
 	char* bin_buff = nullptr;
 	event_data_ptr->print("proc_raw_request");
-
 	save_buffer("log.txt", event_data_ptr->buffer, event_data_ptr->length);
 	
 	/*********************
 	Websocket Processing
 	**********************/
 	if(event_data_ptr->websocket){
-		WsIncome income{event_data_ptr->buffer, event_data_ptr->get_capacity()};
-		WsResponse response{event_data_ptr->buffer, event_data_ptr->get_capacity()};
-		std::cout << "\n\n proc_raw_request Websocket Processing\n\n";
-		income.id = event_data_ptr->id;
-		income.length = event_data_ptr->length;
-
-		income.ws_header.load_from_bytes((unsigned char*)event_data_ptr->buffer);
-		income.ws_header.unmask(event_data_ptr->buffer, event_data_ptr->buffer,event_data_ptr->length);
-
-		proc_request_.on_websocket(&income, &response);
-		event_data_ptr->length = response.length;
-		
-		if((income.ws_header.op_code == WebSocketOpCode::Close) or
-		(response.ws_header.op_code == WebSocketOpCode::Close)){
-			event_data_ptr->keep_alive = false;
-			return std::make_tuple("", 0, nullptr);
-		}
-
-		return std::make_tuple("", event_data_ptr->length, event_data_ptr->buffer);
+		return prepare_ws_response(event_data_ptr);
 	}
 
 	/*********************
 	Normal HTTP Processing
 	**********************/
-    std::istringstream istrm{std::string(event_data_ptr->buffer)};
-    std::string line;
 	HttpRequest request{};
 	HttpResponse response{};
-	const std::regex main_header_regex(R"((GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s(.+)\s*(HTTP\/\d+\.\d+)*(\r|\n)*)");
-	const std::regex attr_header_regex(R"((\S+):\s(.+)(\r|\n)*)");
-	std::cout << "\n\n proc_raw_request Normal HTTP Processing:\n" << event_data_ptr->buffer << "\n\n";
-	std::cout << "\n\nkeep_alive: " << event_data_ptr->keep_alive << "\n\n";
-
-
-	request.id = event_data_ptr->id;
-	int i = 0;
-	while (std::getline(istrm, line)) {
-		std::cout << "    " << (i++) << ": " << line << std::endl;
-		unsigned long pos;
-		if((pos=line.find('\n')) != std::string::npos) line.erase(pos);
-		if((pos=line.find('\r')) != std::string::npos) line.erase(pos);
-		
-		if(std::regex_match(line, main_header_regex)){// Request line
-			auto s = split (line, ' '); 
-			request.method = s[0];
-			request.uri = s[1];
-			std::cout << "        method="<<request.method<<", uri="<<request.uri<<"\n";
-			if(s.size() >= 3) request.protocol_version = s[2]; //may not exist
-			std::cout << "        protocol_version="<<request.protocol_version<<"\n";
-			
-			request.resource = request.uri;
-			if(request.resource.find("?")){
-					request.resource = request.resource.substr(0, request.resource.find("?"));
-			}
-			if(request.resource.find("#")){
-					request.resource = request.resource.substr(0, request.resource.find("#"));
-			}
-			if(request.resource == "/"){
-				request.resource += conf_.default_page;
-			}
-			if(request.resource.find(".") != std::string::npos){ // if file, make complete path
-				request.resource = conf_.dir+request.resource;
-			}else{
-				request.resource = request.resource.substr(1); // else, remove path begin
-			}
-			std::cout << "        resource="<<request.resource<<"\n";
-		}
-		else if(std::regex_match(line, attr_header_regex)){ // Headers
-			//auto s = split (line, ':');
-			auto pos = line.find(": ");
-			auto key = line.substr (0,pos); 			
-			auto value = line.substr (pos + 2); 			
-			std::cout << "        key="<<key<<", value="<<value<<"\n";
-			request.headers[key] = value;
-			
-			if(key=="Connection" and value == "keep-alive"){
-				event_data_ptr->keep_alive = true;
-			}
-			if(key=="Upgrade" and value == "websocket"){
-				std::cout << "        Upgrade: websocket --> keep_alive \n";
-				event_data_ptr->keep_alive = true;
-				event_data_ptr->websocket = true;
-			}
-		}
-		else{ // TODO (something else, e.g. user raw data)
-			//std::cout << "\n proc_raw_request:\n" << event_data_ptr->buffer << "\n\n";
-			//std::cout << "    Http header error on line " << (i++) << ": " << line << std::endl;
-		}
-	}
+	parse_http_request(request, event_data_ptr);
 
 	proc_request_.on_request(&request, &response);
-
+	
 	if((response.body_type == BodyType::TXT_FILE) or (response.body_type == BodyType::BIN_FILE)){
 		if(!std::filesystem::exists(response.body_message)){
 			std::cout << "    FILE DOES NOT EXIST: " << response.body_message << "\n";
@@ -252,7 +156,7 @@ std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* e
 		std::ifstream inFile;
 		inFile.open(response.body_message); //open the input file
 		std::stringstream strStream;
-		strStream << inFile.rdbuf(); //read the file
+		strStream << inFile.rdbuf();        //read the file
 		response_string += strStream.str(); //str holds the content of the file
 		inFile.close();
 	}
@@ -266,5 +170,224 @@ std::tuple<std::string, size_t, char*> HttpServer::proc_raw_request(EventData* e
 	}
 	save_buffer("log1.txt", response_string.c_str(), response_string.length());
 	std::cout << "\n\nkeep_alive: " << event_data_ptr->keep_alive << "\n\n";
-	return std::make_tuple(response_string, buff_size, bin_buff);
+	
+	
+	return prepare_http_response(response_string, buff_size, bin_buff, event_data_ptr);
+}
+
+bool HttpServer::prepare_ws_response(EventData* event_data_ptr){
+	WsIncome income{event_data_ptr->buffer, event_data_ptr->get_capacity()};
+	WsResponse response{event_data_ptr->buffer, event_data_ptr->get_capacity()};
+	std::cout << "\n\n proc_raw_request Websocket Processing\n\n";
+	income.id = event_data_ptr->id;
+	income.length = event_data_ptr->length;
+
+	income.ws_header.load_from_bytes((unsigned char*)event_data_ptr->buffer);
+	income.ws_header.unmask(event_data_ptr->buffer, event_data_ptr->buffer,event_data_ptr->length);
+
+	proc_request_.on_websocket(&income, &response);
+	event_data_ptr->length = response.length;
+	
+	std::cout << "---------------------------------------------------\n";
+	std::cout << " Websocket Response\n";
+	std::cout << "---------------------------------------------------\n";
+	if((income.ws_header.op_code == WebSocketOpCode::Close) or
+	(response.ws_header.op_code == WebSocketOpCode::Close)){
+		event_data_ptr->keep_alive = false;
+		event_data_ptr->length = 0;
+		std::cout << "    Will be closed\n\n";
+	}else{
+		event_data_ptr->buffer[event_data_ptr->length] = 0;
+	}
+	std::cout << "    Message:\n" << event_data_ptr->buffer << "\n\n";
+	std::cout << "    To send " << event_data_ptr->length << " bytes\n";	
+	return true;
+}
+
+bool HttpServer::prepare_http_response(std::string_view response_string, size_t buff_size, char* bin_buff, EventData *event_data_ptr){
+	std::cout << "---------------------------------------------------\n";
+	std::cout << " Http Response\n";
+	std::cout << "---------------------------------------------------\n";
+	std::cout << response_string.data() << "\n\n";
+
+	auto expected_capacity = response_string.length() + buff_size;
+	// Need more space?
+	if(event_data_ptr->get_capacity() < expected_capacity){
+		event_data_ptr->change_capacity(expected_capacity);
+	}
+	
+	// Binary data?
+	if(bin_buff != nullptr and buff_size > 0){
+		std::memcpy(event_data_ptr->buffer, response_string.data(), response_string.length());
+		std::memcpy(&event_data_ptr->buffer[response_string.length()], bin_buff, buff_size);
+
+		event_data_ptr->length = expected_capacity;
+		delete[] bin_buff;
+
+	}else{
+		std::strcpy(event_data_ptr->buffer, response_string.data());
+		event_data_ptr->length = response_string.length();
+	}
+	return true;
+}
+
+bool HttpServer::parse_http_request(HttpRequest &request, EventData *event_data_ptr){
+	const std::regex main_header_regex(R"((GET|HEAD|POST|PUT|DELETE|CONNECT|OPTIONS|TRACE|PATCH)\s(.+)\s*(HTTP\/\d+\.\d+)*(\r|\n)*)");
+	const std::regex attr_header_regex(R"((\S+):\s(.+)(\r|\n)*)");
+	const std::regex empty_header_regex(R"((\r|\n)*)"); //Empty line is valid
+
+    std::istringstream istrm{std::string(event_data_ptr->buffer)};
+    std::string line;
+	request.id = event_data_ptr->id;
+	int i = 0;
+	while (std::getline(istrm, line)) {
+		std::cout << "    " << (i++) << ": " << line << std::endl;
+		unsigned long pos;
+		if((pos=line.find('\n')) != std::string::npos) line.erase(pos);
+		if((pos=line.find('\r')) != std::string::npos) line.erase(pos);
+		
+		if(std::regex_match(line, main_header_regex)){// Request line
+			auto s = split (line, ' '); 
+			request.method = s[0];
+			request.uri = s[1];
+			if(s.size() >= 3) request.protocol_version = s[2]; //may not exist
+			
+			request.resource = request.uri;
+			if(request.resource.find("?")){
+					request.resource = request.resource.substr(0, request.resource.find("?"));
+			}
+			if(request.resource.find("#")){
+					request.resource = request.resource.substr(0, request.resource.find("#"));
+			}
+			if(request.resource == "/"){
+				request.resource += conf_.default_page;
+			}
+			if(request.resource.find(".") != std::string::npos){ // if file, make complete path
+				request.resource = conf_.dir+request.resource;
+			}else{
+				request.resource = request.resource.substr(1); // else, remove path begin
+			}
+		}
+		else if(std::regex_match(line, attr_header_regex)){ // Headers
+			auto pos = line.find(": ");
+			auto key = line.substr (0,pos); 			
+			auto value = line.substr (pos + 2); 			
+			request.headers[key] = value;
+			
+			if(key=="Connection" and value == "keep-alive"){
+				event_data_ptr->keep_alive = true;
+			}
+			if(key=="Upgrade" and value == "websocket"){
+				std::cout << "        Upgrade: websocket --> keep_alive \n";
+				event_data_ptr->keep_alive = true;
+				event_data_ptr->websocket = true;
+			}
+		}else if(!std::regex_match(line, empty_header_regex)){
+			return false;
+		}
+	}
+	return true;	
+};
+
+std::string_view test_request1 = R"(GET /websocket.html#:~:text=In?v=HgjUmDTMywo HTTP/1.1
+Connection: keep-alive
+User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36
+Accept-Language: en-GB,en;q=0.9,de-DE;q=0.8,de;q=0.7,pt-BR;q=0.6,pt;q=0.5,en-US;q=0.4
+
+)";
+
+std::string_view test_request2 = R"(LET /websocket.html HTTP/1.1
+Connection: keep-alive
+
+)";
+
+std::string_view test_response1 = R"(HTTP/1.1 200 OK
+Content-Length: 0
+Content-Type: text/html
+Date: Fri, 26 Jan 2024 16:59:45 GMT
+
+)";
+
+// Unit Test of the Server Message processing
+void HttpServer::internal_unittests(){
+	
+	// test Mime
+	MimeType mime{};
+	assert(mime.get_mime_from_resource("html") == "text/html");
+	assert(mime.get_mime_from_resource("json") == "application/json");
+
+	// parse_http_request: parse a valid http header -> return true
+	{
+	EventData event_data(const_cast<char *>(test_request1.data()), test_request1.length());
+	HttpRequest request{};
+	assert(parse_http_request(request, &event_data));
+	assert(request.method == "GET");
+	assert(request.uri =="/websocket.html#:~:text=In?v=HgjUmDTMywo");
+	assert(request.resource == (conf_.dir+"/websocket.html"));
+	assert(request.protocol_version == "HTTP/1.1");	
+	assert(request.headers["Connection"] == "keep-alive");
+	assert(request.headers["User-Agent"] == "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36");
+	assert(request.headers["Accept-Language"] == "en-GB,en;q=0.9,de-DE;q=0.8,de;q=0.7,pt-BR;q=0.6,pt;q=0.5,en-US;q=0.4");
+	event_data.buffer = nullptr; // test buffer is read only, cannot be deleted
+	}
+	
+	// parse a invalid http header -> return false
+	{
+	EventData event_data(const_cast<char *>(test_request2.data()), test_request2.length());
+	HttpRequest request{};
+	assert(!parse_http_request(request, &event_data));
+	event_data.buffer = nullptr; // test buffer is read only, cannot be deleted
+	}
+	
+	// prepare_ws_response:
+	// parse a valid Websocket packet -> return true
+	// parse a invalid Websocket packet -> return false
+
+	// prepare_http_response: <- Must be refactored
+	// Text only -> out buffer contains data
+	{
+	auto event_data = new EventData();// <- Must use new
+	prepare_http_response(test_response1, 0, nullptr, event_data);
+	assert(event_data->length == (ssize_t)test_response1.length());
+	assert(std::strcmp(event_data->buffer, test_response1.data()) == 0);
+	delete event_data;
+	}
+
+	// Text only, Need more space -> out buffer is re-allocated and contains data
+	{
+	auto event_data = new EventData(10);
+	prepare_http_response(test_response1, 0, nullptr, event_data);
+	assert(event_data->length == (ssize_t)test_response1.length());
+	assert(event_data->get_capacity() == test_response1.length());
+	assert(std::strcmp(event_data->buffer, test_response1.data()) == 0);
+	delete event_data;
+	}
+	
+	// Binary -> out buffer contains header + in buffer data
+	{
+	auto event_data = new EventData();
+	char *buff = new char[3]; buff[0] = 'H'; buff[1] = 'i'; buff[2] = '!'; // <- Must use new
+	char buff2[3]; memcpy(buff2, buff, 3); // <- because buff will be deleted by prepare_http_response
+	prepare_http_response(test_response1, 3, &buff[0], event_data);
+	assert(event_data->length == (ssize_t)(test_response1.length()+(size_t)3));
+	//assert(event_data->get_capacity() == (test_response1.length()+3));
+	std::string new_str = std::string(test_response1) + std::string (std::string_view(buff2, 3));
+	assert(std::strcmp(std::string_view(event_data->buffer, event_data->length).data(), new_str.c_str()) == 0);
+	delete event_data;
+	}
+	
+	// Binary, Need more space -> out buffer is re-allocated and contains header + in buffer data
+	{
+	auto event_data = new EventData(1);
+	char *buff = new char[3]; buff[0] = 'H'; buff[1] = 'i'; buff[2] = '!'; // <- Must use new
+	char buff2[3]; memcpy(buff2, buff, 3); // <- because buff will be deleted by prepare_http_response
+	prepare_http_response(test_response1, 3, &buff[0], event_data);
+	assert(event_data->length == (ssize_t)(test_response1.length()+(size_t)3));
+	std::string new_str = std::string(test_response1) + std::string (std::string_view(buff2, 3));
+	assert(event_data->get_capacity() == (test_response1.length()+3));
+	assert(std::strcmp(std::string_view(event_data->buffer, event_data->length).data(), new_str.c_str()) == 0);
+	delete event_data;
+	}
+	
+	std::cout << "Success: All tests passed.\n";
 }

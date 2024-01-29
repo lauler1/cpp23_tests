@@ -1,4 +1,4 @@
-#include "server.h"
+#include "httpserver.h"
 #include "sha1.h"
 
 #include <iostream>
@@ -99,6 +99,24 @@ std::uintmax_t get_file_size(const std::string &path){
 	std::uintmax_t ans = std::filesystem::file_size(p);
 	std::cout << "     path = " << path <<  "; ans = " << ans << "\n\n";
 	return ans;
+}
+
+int HttpServer::start(std::string_view start_page){
+	if(start_page == ""){
+		start_page = conf_.default_page;
+	}
+	
+    std::cout << "HttpServer::start\n";
+	std::cout << " start_page: " << start_page << "\n";
+    std::cout << "end\n";
+	
+	pImpl->start_socket();
+	
+	if(conf_.open_browser){
+		open_browser(conf_.dir.append("/").append(start_page));
+	}
+	
+	return 0;//ENOTCONN;
 }
 
 bool HttpServer::proc_raw_request(EventData* event_data_ptr){

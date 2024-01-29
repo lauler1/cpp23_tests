@@ -1,5 +1,5 @@
-#ifndef _SERVER_H_
-#define _SERVER_H_
+#ifndef _HTTPSERVER_H_
+#define _HTTPSERVER_H_
 
 
 #include <sstream>
@@ -18,24 +18,6 @@
 #include "mime.h"
 #include <memory>
 
-/**
-	Errors, including the platform dependent ones ones
-*/
-enum class ServError {
-	NO_ERROR = 0,     // OK, no error
-	NOT_STARTED,      // Not yet started
-	WRONG_INIT_PARAM, // Some initialization param is wrong
-	STARTED,       	  // Already started
-	NULL_BUFF,        // Missing buffer allocation (nullptr)
-	SOCKET,
-	SOCK_OPTS,
-	SOCK_BIND,
-	SOCK_ACCEPT,
-	SOCK_LISTEN,
-	EPOLL_CREATE,
-	EPOLL_CTL,
-	EPOLL_WAIT
-};
 
 /**
 	Http Request Type
@@ -262,55 +244,6 @@ struct WebSocketHeaderRaw
 	}
 };
 
-/**
-	HttpServer initialization attributes
-*/
-struct ServInit {
-	uint16_t port{8000};
-	std::string dir{"web"};
-	bool open_browser{true};
-	std::string default_page{"index.html"};
-};
-
-/**
-	Raw data exchangeds via socket.
-	For internal use only
-	
-*/
-struct EventData {
-	EventData() : fd{0}, length{0}, cursor{0}, capacity_{100240} {buffer = new char[capacity_+1];buffer[capacity_] = 0;}
-	EventData(size_t capacity) : fd{0}, length{0}, cursor{0}, capacity_{capacity} {buffer = new char[capacity_+1];buffer[capacity_] = 0;}
-	EventData(char *buff, size_t capacity) : fd{0}, length{0}, cursor{0}, buffer{buff}, capacity_{capacity} {}
-	~EventData() { if(buffer != nullptr) delete[] buffer;}
-	unsigned long int id;
-	int fd;
-	bool websocket{false}; // Do not treat this as a HTTP socket
-	bool keep_alive{false};
-	ssize_t length; // number of bytes
-	size_t cursor;  // for parcial reception/transmission
-	char *buffer;
-	
-	void change_capacity(size_t capacity){
-		capacity_ = capacity;
-		delete buffer;
-		buffer = new char[capacity_+1];buffer[capacity_] = 0;
-	}
-	
-	void reset(){
-		length = 0;
-		cursor = 0;
-	}
-	size_t get_capacity(){return capacity_;}
-	void print(std::string label = ""){
-		std::cout << ":   EventData: <"<<label<<">\n";
-		std::cout << ":           id = " << id<< "\n";
-		std::cout << ":           fd = " << fd<< "\n";
-		std::cout << ":   keep_alive = " << keep_alive<< "\n";
-	}
-
-	private:
-		size_t capacity_; // Max allowed number of bytes
-};
 
 /**
 	Http request data
@@ -394,7 +327,7 @@ struct WsResponse{
 struct Request_Callback_Interface{
 	/**
 		Callback to process a HTTP request from the server and to answer with response.
-		The caller chall ensure the correct allocation of the parameters.
+		The caller shall ensure the correct allocation of the parameters.
 		Pure virtual function.
 		
 		return: true if message was correctly consumed and response is ready.
@@ -402,7 +335,7 @@ struct Request_Callback_Interface{
 	virtual bool on_request(HttpRequest* request, HttpResponse* response) = 0; // pure virtual
 	/**
 		Callback to process a Websocket income message.
-		The caller chall ensure the correct allocation of the parameters.
+		The caller shall ensure the correct allocation of the parameters.
 		Pure virtual function.
 		
 		Note: Websockets must first be accepted as a regular HTTP request.
@@ -415,13 +348,7 @@ struct Request_Callback_Interface{
 
 /**
 	Micro Http server.
-	It has a sub class containing the platform dependent implementation.
 	
-	Note PlatSocketImpl: This is a sub class which is defined per platform (e.g. linux, windows) in a separate file.
-	 Currently only Linux. Include in the compilation only the applicable platform file.
-	
-	Note unitest: To test this class only, without testing the platform specific implementation (PlatSocketImpl),
-	 do not call start() function. Call instead directly the proc_raw_request() with a mocked EventData ptr.
 */
 class HttpServer{
 	ServInit conf_;
@@ -439,8 +366,6 @@ class HttpServer{
 		bool proc_raw_request(EventData* event_data_ptr);
 		
 	private:	
-		class PlatSocketImpl;// Forward declaration of the platform dependent implementation class
-		std::unique_ptr<PlatSocketImpl> pImpl; // Pointer to platform dependent implementation
 		
 		bool prepare_ws_response(EventData* event_data_ptr);
 		bool prepare_http_response(std::string_view response_string, size_t buff_size, char* bin_buff, EventData *event_data_ptr);
@@ -457,4 +382,4 @@ extern int open_browser(std::string url);
 extern std::string get_sec_websocket_accept_attr(std::string key);
 
 extern void save_buffer(std::string filename, const char* buffer, size_t len, bool append = false);
-#endif // _SERVER_H_
+#endif // _HTTPSERVER_H_

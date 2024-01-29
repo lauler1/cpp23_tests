@@ -1,4 +1,5 @@
-#include "server.h"
+//#include "httpserver.h"
+#include "tcpserver.h"
 #include <iostream>
 #include <cstring>
 #include <sstream>
@@ -7,23 +8,11 @@
 #include <cassert>
 
 /** Full server */
+/*
 void test1(HttpServer &server) {
 
-	// parse_http_request:
-	// parse a valid http header -> return true
-	// parse a invalid http header -> return false
 	
-	// prepare_ws_response:
-	// parse a valid Websocket packet -> return true
-	// parse a invalid Websocket packet -> return false
-
-	// prepare_http_response: <- Must be refactored
-	// Text only -> out buffer contains data
-	// Text only, Need more space -> out buffer is re-allocated and contains data
-	// Binary -> out buffer contains header + in buffer data
-	// Binary, Need more space -> out buffer is re-allocated and contains header + in buffer data
-	
-	server.internal_unittests();
+	//server.internal_unittests();
 
 	// Receies a packet not http neither Websocket -> automatic 500 BadRequest
 	//			websocket  = false
@@ -48,7 +37,8 @@ void test1(HttpServer &server) {
 	
 }
 
-/** Full server */
+
+// Full server
 void test2(HttpServer &server) {
     std::cout << "test1\n";
 	auto err = server.start("index.html");
@@ -153,14 +143,37 @@ bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* respon
 
 	return true; //response processed successfully
 };
+*/
+
+struct HttpDecorator: ServerInterface{
+	std::string name = "Test Server";
+
+	bool proc_raw_request(EventData* event_data_ptr){
+		std::cout << "HttpDecorator::proc_raw_request\n";
+		event_data_ptr->length = 0; // <- don't send data
+		return true;
+	}
+};
+
 
 int main() {
 	
-	Eel test{};
+	//Eel test{};
 	
-	auto server = HttpServer({.port = 8001, .dir{"web"}, .open_browser=false}, test);
+	//auto server = HttpServer({.port = 8001, .dir{"web"}, .open_browser=false}, test);
+	HttpDecorator http_decorator{};
+	auto server = TcpServer({.port = 8001, .dir{"web"}, .open_browser=false}, http_decorator);
+	auto err = server.start();
+	if(err != ServError::NO_ERROR){
+		std::cout << " server.start error\n";
+		return -1;
+	}
+
+	do{
+		err = server.run();
+	}while(err == ServError::NO_ERROR);
 	
-	test1(server);
+	//test2(server);
     
     return 0;
 }

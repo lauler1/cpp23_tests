@@ -1,7 +1,7 @@
 #ifndef _HTTPSERVER_H_
 #define _HTTPSERVER_H_
 
-
+#include "tcpserver.h"
 #include <sstream>
 #include <iomanip>
 
@@ -346,11 +346,21 @@ struct Request_Callback_Interface{
 	//virtual bool on_error(const HttpRequest* request, HttpResponse* response) = 0;   // pure virtual
 };
 
+
+/**
+	TcpServer initialization attributes
+*/
+struct ServInit {
+	//uint16_t port{8000};
+	std::string dir{"web"};
+	std::string default_page{"index.html"};
+};
+
 /**
 	Micro Http server.
 	
 */
-class HttpServer{
+class HttpServer: public ServerDecoratorInterface{
 	ServInit conf_;
 	Request_Callback_Interface &proc_request_; // Peer object to process the receiver requests
 	//std::function<void(HttpRequest*, HttpResponse*)> proc_request_;
@@ -359,7 +369,7 @@ class HttpServer{
 		HttpServer() = delete;
 		HttpServer(ServInit params, Request_Callback_Interface &on_request);//std::function<void(HttpRequest*, HttpResponse*)> on_request);
 		~HttpServer();
-		int start(std::string_view start_page);
+		int start(std::string_view start_page, bool shall_open_browser = false);
 		int run();
 		
 		void internal_unittests();
@@ -381,5 +391,4 @@ extern int open_browser(std::string url);
 
 extern std::string get_sec_websocket_accept_attr(std::string key);
 
-extern void save_buffer(std::string filename, const char* buffer, size_t len, bool append = false);
 #endif // _HTTPSERVER_H_

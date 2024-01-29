@@ -38,16 +38,6 @@ enum class ServError {
 };
 
 /**
-	TcpServer initialization attributes
-*/
-struct ServInit {
-	uint16_t port{8000};
-	std::string dir{"web"};
-	bool open_browser{true};
-	std::string default_page{"index.html"};
-};
-
-/**
 	Raw data exchangeds via socket.
 	For internal use only
 	
@@ -87,7 +77,7 @@ struct EventData {
 		size_t capacity_; // Max allowed number of bytes
 };
 
-struct ServerInterface{
+struct ServerDecoratorInterface{
 	/**
 		Callback decorator
 		
@@ -106,13 +96,13 @@ struct ServerInterface{
 	
 */
 class TcpServer{
-	ServInit conf_;
-	ServerInterface &decorator_; // Peer object to process the receiver requests
+	uint16_t port_;
+	ServerDecoratorInterface &decorator_; // Peer object to process the receiver requests
 	//std::function<void(HttpRequest*, HttpResponse*)> decorator_;
 	
 	public:
 		TcpServer() = delete;
-		TcpServer(ServInit params, ServerInterface &decorator);//std::function<void(HttpRequest*, HttpResponse*)> on_request);
+		TcpServer(uint16_t port, ServerDecoratorInterface &decorator);//std::function<void(HttpRequest*, HttpResponse*)> on_request);
 		~TcpServer();
 		ServError start();
 		ServError run();

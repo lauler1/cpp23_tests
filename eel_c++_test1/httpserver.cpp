@@ -55,21 +55,6 @@ std::string get_sec_websocket_accept_attr(std::string key){
 	return my_base64(hex);
 }
 
-void save_buffer(std::string filename, const char* buffer, size_t len, bool append){
-	
-	if(buffer == nullptr or len <= 0 or len > 100'000'000 or filename == ""){
-		return;
-	}
-	std::ios_base::openmode mode = std::ios::binary | std::ios::out;
-	if(append){
-		mode |= std::ios::app;
-	}
-	std::ofstream outfile;
-	outfile.open(filename, mode);
-	outfile.write(buffer, len); // sizeof can take a type
-	outfile.close();
-}
-
 std::vector<std::string> split (const std::string &s, char delim) {
     std::vector<std::string> result;
     std::stringstream ss (s);
@@ -101,7 +86,19 @@ std::uintmax_t get_file_size(const std::string &path){
 	return ans;
 }
 
-int HttpServer::start(std::string_view start_page){
+HttpServer::HttpServer(ServInit params, Request_Callback_Interface &on_request):
+				conf_{params},
+				proc_request_{on_request} {
+
+    std::cout << "TcpServer::TcpServer\n";
+    std::cout << " dir: " << conf_.dir << "\n";
+    std::cout << " default_page: " << conf_.default_page << "\n";
+    std::cout << "end\n";
+}
+
+HttpServer::~HttpServer() = default;
+
+int HttpServer::start(std::string_view start_page, bool shall_open_browser){
 	if(start_page == ""){
 		start_page = conf_.default_page;
 	}
@@ -109,10 +106,8 @@ int HttpServer::start(std::string_view start_page){
     std::cout << "HttpServer::start\n";
 	std::cout << " start_page: " << start_page << "\n";
     std::cout << "end\n";
-	
-	pImpl->start_socket();
-	
-	if(conf_.open_browser){
+
+	if(shall_open_browser){
 		open_browser(conf_.dir.append("/").append(start_page));
 	}
 	

@@ -53,15 +53,12 @@ class TcpServer::PlatSocketImpl{
 };
 int TcpServer::PlatSocketImpl::epoll_id_ = 0;
 
-TcpServer::TcpServer(ServInit params, ServerInterface &decorator): conf_{params},
+TcpServer::TcpServer(uint16_t port, ServerDecoratorInterface &decorator): port_{port},
 				decorator_{decorator},
-				pImpl{std::make_unique<PlatSocketImpl>(this, true, "0.0.0.0", params.port)} {
+				pImpl{std::make_unique<PlatSocketImpl>(this, true, "0.0.0.0", port)} {
 
     std::cout << "TcpServer::TcpServer\n";
-    std::cout << " conf_.port: " << conf_.port << "\n";
-    std::cout << " conf_.dir: "  << conf_.dir << "\n";
-    std::cout << " conf_.open_browser: "  << conf_.open_browser << "\n";
-    std::cout << " conf_.default_page: "  << conf_.default_page << "\n";
+    std::cout << " port: " << port_ << "\n";
     std::cout << "end\n";
 }
 

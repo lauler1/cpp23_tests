@@ -1,4 +1,4 @@
-//#include "httpserver.h"
+#include "httpserver.h"
 #include "tcpserver.h"
 #include <iostream>
 #include <cstring>
@@ -12,7 +12,7 @@
 void test1(HttpServer &server) {
 
 	
-	//server.internal_unittests();
+	server.internal_unittests();
 
 	// Receies a packet not http neither Websocket -> automatic 500 BadRequest
 	//			websocket  = false
@@ -56,7 +56,7 @@ void test2(HttpServer &server) {
 		return;
 	}
 }
-
+*/
 struct Eel: Request_Callback_Interface{
 	std::string name = "Test Server";
 
@@ -143,9 +143,9 @@ bool Eel::on_request(HttpRequest* request, [[maybe_unused]] HttpResponse* respon
 
 	return true; //response processed successfully
 };
-*/
 
-struct HttpDecorator: ServerInterface{
+
+struct HttpDecorator: ServerDecoratorInterface{
 	std::string name = "Test Server";
 
 	bool proc_raw_request(EventData* event_data_ptr){
@@ -158,11 +158,11 @@ struct HttpDecorator: ServerInterface{
 
 int main() {
 	
-	//Eel test{};
+	Eel test{};
 	
-	//auto server = HttpServer({.port = 8001, .dir{"web"}, .open_browser=false}, test);
+	auto httpserver = HttpServer({.dir{"web"}}, test);
 	HttpDecorator http_decorator{};
-	auto server = TcpServer({.port = 8001, .dir{"web"}, .open_browser=false}, http_decorator);
+	auto server = TcpServer(8001, httpserver);
 	auto err = server.start();
 	if(err != ServError::NO_ERROR){
 		std::cout << " server.start error\n";
